@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import Auth from './components/Auth'
+import Navbar from './components/Navbar'
+import Main from './components/Main'
 
 function App() {
-  const [data,setData] = useState(null)
+  const [data,setData] = useState({username: 'Rachit', email_address: 'r@sexy.com', password: 'rachit'})
   return (
     data ?
-    <>
-      Logged in!
-    </>
+    <Main data={data} setData={setData}/>
     :
     <Auth setData={setData} /> 
   )

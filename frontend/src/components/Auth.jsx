@@ -64,13 +64,9 @@ export default function Auth(props) {
     async function register() {
       try{
         const API_URL = `${api_url}register`
-        const {data:actualData}  = await axios.post(API_URL,{"name":username,"email":email,"password":password})
-        setToken(actualData.token)
-        console.log(actualData.user)
-        setData(actualData.user)
-
-
-        
+        const {data:actualData}  = await axios.post(API_URL,{"username":username,"email_address":email,"password":password})
+        console.log(actualData)
+        setData(actualData)
       }catch(err){
         setError("Email already exists")
         console.error(err)
