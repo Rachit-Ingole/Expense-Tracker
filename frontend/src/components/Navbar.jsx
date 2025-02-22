@@ -7,7 +7,19 @@ const SidebarData = [
   {
     title: 'Expense Tracker',
     path: '/',
+    icon: <i className="fa-solid fa-wallet"></i>,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Expense Report',
+    path: '/er',
     icon: <i className="fa-solid fa-chart-simple"></i>,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Currency Exchange',
+    path: '/ce',
+    icon: <i className="fa-solid fa-coins"></i>,
     cName: 'nav-text'
   },
   {
@@ -37,7 +49,7 @@ export default function Navbar(props) {
         <div>
           <div className='mt-[10px]'>
             <h1 className='text-3xl font-semibold text-center'>Penny<span className='font-semibold text-blue-500'>Wise</span></h1>
-            <h1 className='text-center'>Welcome,<span className='font-semibold'>{data.username}</span></h1>
+            <h1 className='text-center'>Welcome, <span className='font-semibold'>{data.username}</span></h1>
           </div>
         </div>
         
@@ -45,7 +57,7 @@ export default function Navbar(props) {
           <i className="fa-solid fa-circle-user text-4xl"></i>
         </div>
     </div>
-    <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
+    <nav className={sidebar ? 'z-60 nav-menu active' : 'z-60 nav-menu'}>
     <ul className='nav-menu-items flex flex-col justify-between' onClick={()=>(setSidebar(!sidebar))}>
       <ul>
       <li className='navbar-toggle'>
