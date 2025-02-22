@@ -54,7 +54,7 @@ class loginInfo(BaseModel):
     password: str
 
 @app.post("/api/v1/auth/login", response_model=User)
-async def read_user_by_email(userInfo: loginInfo = Body(...)):
+async def login_user(userInfo: loginInfo = Body(...)):
     user = await app.mongodb["users"].find_one({"email_address": userInfo.email_address})
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -62,6 +62,16 @@ async def read_user_by_email(userInfo: loginInfo = Body(...)):
         return user
     else:
         raise HTTPException(status_code=404, detail="username/password incorrect")
+
+
+@app.post("/api/v1/auth/register", response_model=User)
+async def register_user(user: User):
+    exists = await app.mongodb["users"].find_one({"email_address": user.email_address})
+    if exists:
+        raise HTTPException(status_code=404, detail="email already exists")
+    result = await app.mongodb["users"].insert_one(user.dict())
+    inserted_user = await app.mongodb["users"].find_one({"_id": result.inserted_id})
+    return inserted_user
 
 
 # C <=== Create
