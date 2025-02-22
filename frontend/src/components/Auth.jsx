@@ -83,15 +83,15 @@ export default function Auth(props) {
 
   return (
     page == "home" ? 
-    <div className='w-screen h-screen bg-slate-800 text-white ' >
+    <div className='w-screen h-screen text-black ' >
       <div className='h-[90px] flex items-center justify-center w-full'>
-      <h1 className='text-4xl font-Mont text-blue-300 font-md w-[85%]'>PennyWise</h1>
+      <h1 className='text-4xl font-Mont font-md w-[85%]'>Penny<span className='text-blue-500'>Wise</span></h1>
       </div>
       <div className=' flex h-[600px] w-[85%] m-auto'>
         <div className='flex flex-col lg:w-1/2 justify-center gap-[20px]'>
-          <h1 className='text-4xl font-Mont  font-semibold'>Expense <span className='text-blue-300'>Tracking</span>  App</h1>
-          <p className='text-lg font-Poppins'>Welcome</p>
-          <button onClick={(e)=>setPage("login")} className='w-[200px] cursor-pointer font-Poppins bg-blue-400 pt-2 pb-2 pl-1 pr-1 rounded-lg font-semibold'>
+          <h1 className='text-4xl font-Mont  font-semibold'>Expense <span className='text-blue-500'>Tracking</span>  App</h1>
+          <p className='text-lg font-Poppins'>Master your money with our Expense Tracker! Quickly log expenses, set budgets, and see where your money goes with insightful charts. Start saving smarter today!</p>
+          <button onClick={(e)=>setPage("login")} className='w-[200px] cursor-pointer font-Poppins bg-blue-500 text-white pt-2 pb-2 pl-1 pr-1 rounded-lg font-semibold'>
             Login/Register
           </button>
         </div>
