@@ -189,4 +189,4 @@ def schedule_email_api(
     # Schedule email in the background
     background_tasks.add_task(schedule_email, recipient, subject, message, schedule_datetime)
 
-    return {"Message": "Email scheduled successfully", "scheduled_datetime": schedule_datetime}
+    return {"message": "Email scheduled successfully", "scheduled_datetime": schedule_datetime}
