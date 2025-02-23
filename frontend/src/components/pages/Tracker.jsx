@@ -266,6 +266,30 @@ export default function Tracker(props) {
         return `${hour12}:${minute} ${period}`;
       }
     let mandy = `${(year).toString().padStart(4,"0")}-${(month+1).toString().padStart(2,"0")}`
+
+    function handleImageUpload(e){
+        const formData = new FormData()
+        const inputFile = document.getElementById("file")
+        for (const file of inputFile.files) {
+            formData.append("image", file);
+        }
+        async function upload_image() {
+            try{
+              const API_URL = `${api_url}/upload`
+              const {data:actualData}  = await axios.post(API_URL,formData,{
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                }})
+              console.log(actualData)
+            }catch(err){
+              setError("Input Missing") 
+            }
+          }
+      
+        upload_image()
+
+    }
+
   return (
     <>
     <div className='md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] h-[80vh] bg-slate-200 rounded-xl m-auto' >
@@ -300,14 +324,14 @@ export default function Tracker(props) {
                 <i className="text-lg fa-solid fa-plus"></i>
             </button>
         </div>
-        <div className='md:w-[45%] h-[100%] flex flex-col justify-between' hidden={!addExpense}>
+        <div className='md:w-[45%] h-[80%] flex flex-col justify-between' hidden={!addExpense}>
             <div className='flex w-[100%] justify-evenly text-black'>
                 <div onClick={(e)=>{updateMonthandTime();setCategory(null);setDataType("income")}} className={dataType=="income" ? "text-blue-600 font-bold cursor-pointer" : "cursor-pointer"}>Income</div>
                 <div onClick={(e)=>{updateMonthandTime();setCategory(null);setDataType("expense")}} className={dataType=="expense" ? "text-blue-600 font-bold  cursor-pointer" : "cursor-pointer"}>Expense</div>
             </div>
 
 
-            <div className='flex flex-col p-5  align-center w-[100%] justify-evenly text-black mt-[20px]'>
+            <div className='flex flex-col p-5  align-center w-[100%] justify-evenly text-black'>
                 <div className='mb-[5px]'><i className="fa-solid fa-tag"></i> Category </div>
                 <CategoryDropper type={dataType} category={category} setCategory={setCategory}></CategoryDropper>
             </div>
@@ -325,19 +349,23 @@ export default function Tracker(props) {
                     <input onChange={(e)=>{setAmount(e.target.value)}} type='number' className='bg-white block rounded-lg p-1 text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50' value={amount}></input>
                 
             </div>
+            <div className='flex flex-col items-center align-center justify-evenly w-[100%] text-black '>
+                <div className='text-sm'>Upload Image of Bill(PNG)</div>
+                <input id="file" onChange={(e)=>{handleImageUpload(e)}} className='border-1 text-sm rounded-sm' type="file" multiple />
+            </div>
 
-            <div className='flex p-5 align-center justify-center w-[100%] text-black '>
+            <div className='flex px-5 mt-[5px] align-center justify-center w-[100%] text-black '>
                 
                 <div className='border-r-2 pr-[10px] border-black'><input onChange={(e)=>{console.log(e.target.value);setExpenseMonth(e.target.value)}} className=' outline-none' type="date" id="start" name="start" min="2022-01" value={expenseMonth}/></div>
                 <div className='ml-[10px]'><input onChange={(e)=>{setTime(e.target.value)}} type="time" id="appt" name="appt" value={time}></input></div>
             
             </div>
 
-            <div className='flex p-5 align-center text-red-400 justify-center w-[100%] text-black '>
+            <div className='flex p-5 align-center text-md text-red-400 justify-center w-[100%] text-black '>
                 {error}
             </div>
 
-            <div className='flex w-[100%] justify-evenly mb-[20px] text-black mt-auto'>
+            <div className='flex w-[100%] justify-evenly text-black mt-auto'>
                 <div onClick={(e)=>{setCategory(null);setAddExpense(!addExpense)}} className='cursor-pointer'><i className="fa-solid fa-xmark"></i> Cancel</div>
                 <div onClick={(e)=>{handleSave(e)}} className='cursor-pointer'><i className="fa-solid fa-check"></i> Save</div>
             </div>
