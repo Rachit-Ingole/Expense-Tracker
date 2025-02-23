@@ -23,9 +23,9 @@ const SidebarData = [
     cName: 'nav-text'
   },
   {
-    title: 'Tax Calculator',
-    path: '/tc',
-    icon: <i className="fa-solid fa-calculator"></i>,
+    title: 'Email Reminder',
+    path: '/pr',
+    icon: <i className="fa-solid fa-clock"></i>,
     cName: 'nav-text'
   },
 

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Body
 import os
 from dotenv import load_dotenv
-from models import User # import the user model defined by us
+from models import User,Record # import the user model defined by us
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 from typing import List 
@@ -73,6 +73,37 @@ async def register_user(user: User):
     inserted_user = await app.mongodb["users"].find_one({"_id": result.inserted_id})
     return inserted_user
 
+
+@app.post("/api/v1/createrecord",response_model=Record)
+async def create_record(record: Record):
+    result = await app.mongodb["record"].insert_one(record.dict())
+    inserted_record = await app.mongodb["record"].find_one({"_id": result.inserted_id})
+    return inserted_record
+
+
+class EmailInput(BaseModel):
+    email_address:str
+    password:str
+
+
+@app.post("/api/v1/getrecords",response_model=List[Record])
+async def get_all_records(email: EmailInput):
+    user = await app.mongodb["users"].find_one({"email_address": email.email_address})
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user["password"] != email.password:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
+
+    records = await app.mongodb["record"].find({"email_address": email.email_address}).to_list(None)
+    return records
+
+@app.delete("/api/v1/deleterecord") 
+async def delete_record(record: Record):
+    deleted_result = app.mongodb["record"].delete_one(record)
+    if deleted_result.deleted_count == 1:
+        return {"message": "User deleted successfully"}
+    else:
+        return {"message": "User not found"}
 
 # C <=== Create
 @app.post("/api/v1/create-user", response_model=User)
