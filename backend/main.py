@@ -145,7 +145,7 @@ async def read_user_by_email(email_address: str):
 
 
 # ocr
-@app.post("/upload/")
+@app.post("/api/v1/upload")
 async def upload_image(image: UploadFile = File(...)):
     image.filename = "/Users/rishitbaitule/PycharmProjects/Expense-Tracker/images/img.png"
     contents = await image.read()
