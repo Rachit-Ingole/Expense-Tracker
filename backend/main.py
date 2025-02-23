@@ -155,8 +155,8 @@ async def upload_image(image: UploadFile = File(...)):
 
     with open(f"{file_location}", "wb") as f:
         f.write(contents)
-        cost = scan(image.filename)
-    os.remove(image.filename)
+        cost = scan(file_location)
+    os.remove(file_location)
     return {"filename": image.filename, "cost": cost}
 
 
