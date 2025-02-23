@@ -1,9 +1,13 @@
 import os
+import smtplib
+import time
 from contextlib import asynccontextmanager
+from datetime import datetime
+from email.mime.text import MIMEText
 from typing import List
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Body, File, UploadFile
+from fastapi import FastAPI, HTTPException, Body, File, UploadFile, Form, BackgroundTasks
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel  # Most widely used data validation library for python
 
@@ -119,3 +123,70 @@ async def upload_image(image: UploadFile = File(...)):
         cost = scan(image.filename)
     os.remove(image.filename)
     return {"filename": image.filename, "cost": cost}
+
+
+load_dotenv('creds.env')
+
+# Load environment variables
+SMTP_EMAIL = os.getenv("SMTP_EMAIL")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+SMTP_SERVER = os.getenv("SMTP_SERVER")
+SMTP_PORT = int(os.getenv("SMTP_PORT"))
+
+
+def send_email(recipient: str, subject: str, message: str):
+    try:
+        # SMTP SERVER SETUP
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SMTP_EMAIL, SMTP_PASSWORD)
+
+        # Create email
+        msg = MIMEText(message)
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = recipient
+        msg["Subject"] = subject
+
+        # SEND MAIL
+        server.sendmail(SMTP_EMAIL, recipient, msg.as_string())
+        server.quit()
+
+        print(f"Email sent to {recipient} at {datetime.now()}")
+    except smtplib.SMTPException as e:
+        print(f"Email sending failed: {str(e)}")
+
+
+def schedule_email(recipient: str, subject: str, remind_of: str, scheduled_datetime: str):
+    scheduled_time = datetime.strptime(scheduled_datetime, "%d-%m-%Y %H:%M")
+
+    # Calculate delay
+    delay = (scheduled_time - datetime.now()).total_seconds()
+
+    if delay > 0:
+        print(f"Waiting {delay:.2f} seconds to send email at {scheduled_datetime}...")
+        time.sleep(delay)
+
+    send_email(recipient, subject, remind_of)
+
+
+@app.post("/schedule-email/")
+def schedule_email_api(
+        background_tasks: BackgroundTasks,
+        recipient: str = Form(...),
+        subject: str = "BILL PAYMENT EMAIL REMINDER",
+        remind_of: str = Form(...),
+        schedule_datetime: str = Form(...)  # Format: DD-MM-YYYY HH:MM
+):
+    try:
+        scheduled_time = datetime.strptime(schedule_datetime, "%d-%m-%Y %H:%M")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use DD-MM-YYYY HH:MM")
+    message = f"Reminder to pay {remind_of} bill.\nAutomated Message sent by PennyWise"
+    # Validate future date/time
+    if scheduled_time < datetime.now():
+        raise HTTPException(status_code=400, detail="Scheduled time must be in the future.")
+
+    # Schedule email in the background
+    background_tasks.add_task(schedule_email, recipient, subject, message, schedule_datetime)
+
+    return {"message": "Email scheduled successfully", "scheduled_datetime": schedule_datetime}
