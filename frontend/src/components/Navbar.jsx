@@ -24,7 +24,7 @@ const SidebarData = [
   },
   {
     title: 'Email Reminder',
-    path: '/pr',
+    path: '/er',
     icon: <i className="fa-solid fa-clock"></i>,
     cName: 'nav-text'
   },

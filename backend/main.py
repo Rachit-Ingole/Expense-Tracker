@@ -145,15 +145,18 @@ async def read_user_by_email(email_address: str):
 
 
 # ocr
-@app.post("/upload/")
+from pathlib import Path
+UPLOAD_DIRECTORY = "uploads/"
+@app.post("/api/v1/upload")
 async def upload_image(image: UploadFile = File(...)):
-    image.filename = "/Users/rishitbaitule/PycharmProjects/Expense-Tracker/images/img.png"
+    Path(UPLOAD_DIRECTORY).mkdir(parents=True, exist_ok=True)
+    file_location = Path(UPLOAD_DIRECTORY) / image.filename
     contents = await image.read()
 
-    with open(f"{image.filename}", "wb") as f:
+    with open(f"{file_location}", "wb") as f:
         f.write(contents)
-        cost = scan(image.filename)
-    os.remove(image.filename)
+        cost = scan(file_location)
+    os.remove(file_location)
     return {"filename": image.filename, "cost": cost}
 
 
