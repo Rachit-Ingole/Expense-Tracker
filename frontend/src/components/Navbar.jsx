@@ -4,32 +4,30 @@ import {Link} from 'react-router-dom';
 import {useState} from 'react';
 
 const SidebarData = [
-    {
-        title: 'Expense Tracker',
-        path: '/',
-        icon: <i className="fa-solid fa-wallet"></i>,
-        cName: 'nav-text'
-    },
-    {
-        title: 'Expense Report',
-        path: '/er',
-        icon: <i className="fa-solid fa-chart-simple"></i>,
-        cName: 'nav-text'
-    },
-    {
-        title: 'Currency Exchange',
-        path: '/ce',
-        icon: <i className="fa-solid fa-coins"></i>,
-        cName: 'nav-text'
-    },
-    {
-        title: 'Tax Calculator',
-        path: '/tc',
-        icon: <i className="fa-solid fa-calculator"></i>,
-        cName: 'nav-text'
-    },
-
-
+  {
+    title: 'Expense Tracker',
+    path: '/',
+    icon: <i className="fa-solid fa-wallet"></i>,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Expense Report',
+    path: '/er',
+    icon: <i className="fa-solid fa-chart-simple"></i>,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Currency Exchange',
+    path: '/ce',
+    icon: <i className="fa-solid fa-coins"></i>,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Email Reminder',
+    path: '/pr',
+    icon: <i className="fa-solid fa-clock"></i>,
+    cName: 'nav-text'
+  },
 ];
 
 export default function Navbar(props) {
