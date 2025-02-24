@@ -15,7 +15,8 @@ Pennywise is a full-featured web application that enables users to track their e
 - **Notes**: Add detailed notes to each expense.
 - **Currency Exchange Converter**: Convert expenses into different currencies.
 - **Email Reminders**: Receive email notifications for pending bills.
-
+- **Image Upload**: Upload images of bills, and the amount will be automatically added.
+  
 ## Technologies Used
 
 - **Front End**: React.js
