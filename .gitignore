@@ -13,8 +13,15 @@ dist
 dist-ssr
 *.local
 
+
 # Editor directories and files
 .vscode/*
+/__pycache__/
+/pycache/*
+./pycache/*
+backend/__pycache__/*
+backend/pycache/*
+backend/__pycache__
 !.vscode/extensions.json
 .idea
 .DS_Store
