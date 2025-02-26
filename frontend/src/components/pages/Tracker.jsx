@@ -111,6 +111,7 @@ export default function Tracker(props) {
         let total_income = 0;
         let mandy = `${(year).toString().padStart(4,"0")}-${(month+1).toString().padStart(2,"0")}`
         if(!organisedRecords[mandy]){
+            setTopbar({expense:0,income:0});  
             return
         }
         Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
@@ -122,7 +123,7 @@ export default function Tracker(props) {
                 }
             })
         })
-        setTopbar({expense:total_expense,income:total_income});             
+        setTopbar({expense:total_expense.toFixed(2),income:total_income.toFixed(2)});             
     },[month,organisedRecords])
 
     async function getAllRecords(){
@@ -307,7 +308,7 @@ export default function Tracker(props) {
                 </div>
                 <div className='text-center'>
                     <h4 className='font-semibold text-xs'>TOTAL</h4>
-                    <h4 className={topbar.income>=topbar.expense?"text-green-600 font-bold":"text-red-400 font-bold"}>₹{topbar.income>topbar.expense?topbar.income-topbar.expense:topbar.expense-topbar.income}</h4>
+                    <h4 className={topbar.income>=topbar.expense?"text-green-600 font-bold":"text-red-400 font-bold"}>₹{topbar.income>=topbar.expense?topbar.income-topbar.expense:topbar.expense-topbar.income}</h4>
                 </div>
             </div>
             <div className='flex flex-col mt-[10px] max-h-[80%] overflow-y-auto'>
