@@ -308,15 +308,15 @@ export default function Tracker(props) {
                 </div>
                 <div className='text-center'>
                     <h4 className='font-semibold text-xs'>TOTAL</h4>
-                    <h4 className={topbar.income>=topbar.expense?"text-green-600 font-bold":"text-red-400 font-bold"}>₹{topbar.income>=topbar.expense?topbar.income-topbar.expense:topbar.expense-topbar.income}</h4>
+                    <h4 className={Number(topbar.income)>=Number(topbar.expense)?"text-green-600 font-bold":"text-red-400 font-bold"}>₹{Number(topbar.income)>=Number(topbar.expense)?(topbar.income-topbar.expense).toFixed(2):(topbar.expense-topbar.income).toFixed(2)}</h4>
                 </div>
             </div>
             <div className='flex flex-col mt-[10px] max-h-[80%] overflow-y-auto'>
                 {!organisedRecords[mandy] ? "" :
                     Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
-                        return organisedRecords[mandy][monthdate].map((value,idx)=>{
+                        return <div><h4 className='font-semibold text-sm border-b-1 mr-[50%] mb-[5px]'>{monthdate.slice(-2)} {m_names[month]}</h4> {organisedRecords[mandy][monthdate].map((value,idx)=>{
                             return <RecordCard handlePopUp={handlePopUp} key={idx} value={value} />
-                        })
+                        })}</div>
                     }) 
                 }
             </div>
