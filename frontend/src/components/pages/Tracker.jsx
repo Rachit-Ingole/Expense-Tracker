@@ -291,6 +291,10 @@ export default function Tracker(props) {
 
     }
 
+    function showNote(){
+        
+    }
+
   return (
     <>
     <div className='md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] h-[80vh] bg-slate-200 rounded-xl m-auto' >
@@ -373,8 +377,9 @@ export default function Tracker(props) {
         </div>
     </div>
     <div className={popup ? "fixed top-1/2 left-1/2 translate-x-[-50%] backdrop-blur translate-y-[-50%] rounded-lg bg-slate-400 h-[300px] w-[300px]" : "hidden"}>
-            <div className='fixed text-xl right-2 top-1 cursor-pointer text-white' onClick={()=>{deleteRecord(popupVal)}}><i className="fa-solid fa-trash"></i></div>
+            <div className='fixed text-xl right-2 mt-[1px] top-1 cursor-pointer text-white' onClick={()=>{deleteRecord(popupVal)}}><i className="fa-solid fa-trash"></i></div>
             <div className='fixed text-3xl left-2 cursor-pointer text-white' onClick={(e)=>{setPopup(false)}}><i className="fa-solid fa-xmark"></i></div>
+            <div className='fixed text-3xl right-9 top-2 border-2 rounded-lg px-2 cursor-pointer text-sm text-white' onClick={()=>{showNote()}}>Note</div>
             <div className='fixed text-sm right-2 top-3/4 translate-y-[-100%] font-semibold text-white'>{formatDate(popupVal.date)}, {convertTo12HourFormat(popupVal.time)}</div>
             <div className={popupVal.recordType == "expense" ? "h-3/4 bg-red-400 rounded-t-lg text-white flex flex-col justify-center items-center" : "h-3/4 bg-green-600 rounded-t-lg text-white flex flex-col justify-center items-center"}>
                 <h1 className='font-semibold uppercase text-2xl'>{popupVal.recordType}</h1>
