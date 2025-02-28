@@ -38,6 +38,7 @@ export default function EmailReminder(){
 
   return (
     <div className='flex flex-col justify-center items-center mt-[10px] text-lg p-3 w-full sm:w-[75%] h-[80vh] bg-slate-200 rounded-xl m-auto' >
+        <h2 className='mb-[50px] font-semibold'>Email Reminder</h2>
         <form className='flex flex-col gap-[20px]' onSubmit={handleSubmit}>
         <input className='bg-white rounded-lg p-2'
             type="text"

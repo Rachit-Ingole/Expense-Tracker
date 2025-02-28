@@ -2,7 +2,6 @@ import React, { use, useEffect, useState } from 'react'
 import CategoryDropper from './CategoryDropper';
 import RecordCard from './recordCard';
 
-
 const api_url = "http://127.0.0.1:8000/api/v1";
 const m_names = ['January', 'February', 'March', 
     'April', 'May', 'June', 'July', 
@@ -44,7 +43,6 @@ export default function Tracker(props) {
     const [records,setRecords] = useState([])
     const [organisedRecords,setOrganisedRecords] = useState([])
     const [topbar,setTopbar] = useState({expense:0,income:0})
-
 
     function sortRecords(data) {
         // Helper function to parse 'date' and 'time'
