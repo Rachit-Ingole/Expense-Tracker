@@ -110,13 +110,33 @@ async def get_all_records(email: EmailInput):
     records = await app.mongodb["record"].find({"email_address": email.email_address}).to_list(None)
     return records
 
+class RecordAuth(BaseModel):
+    recordType: str
+    category: str
+    note: str
+    email_address: str
+    password: str
+    amount: str
+    time: str
+    date: str
+
 @app.delete("/api/v1/deleterecord") 
-async def delete_record(record: Record):
-    deleted_result = app.mongodb["record"].delete_one(record)
+async def delete_record(record: RecordAuth = Body(...)):
+    user = await app.mongodb["users"].find_one({"email_address": record.email_address})
+    print(user)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user["password"] != record.password:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
+
+    record_dict = record.dict()
+    del record_dict['password']
+
+    deleted_result = await app.mongodb["record"].delete_one(record_dict)
     if deleted_result.deleted_count == 1:
-        return {"message": "User deleted successfully"}
+        return {"message": "Record deleted successfully"}
     else:
-        return {"message": "User not found"}
+        return {"message": "Record not found"}
 
 # C <=== Create
 @app.post("/api/v1/create-user", response_model=User)

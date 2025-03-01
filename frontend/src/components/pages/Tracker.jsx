@@ -186,25 +186,15 @@ export default function Tracker(props) {
     }
 
     async function deleteRecord(value){
-        function convertObjectPropertiesToQuoted(obj) {
-            const newObj = {};
-          
-            for (const key in obj) {
-              if (obj.hasOwnProperty(key)) {
-                const newKey = `"${key}"`;
-                newObj[newKey] = obj[key];
-              }
-            }
-          
-            return newObj;
-        }
         try{
             const API_URL = `${api_url}/deleterecord`
-            console.log(convertObjectPropertiesToQuoted(value))
-            const {data:actualData}  = await axios.delete(API_URL,convertObjectPropertiesToQuoted(value))
-            console.log(actualData)
+            let newVal = {"recordType":value.recordType,"category":value.category,"amount":value.amount,"time":value.time,"date":value.date,"email_address":value.email_address,"note":value.note,"password":data.password}
+            await axios.delete(API_URL,{data:newVal})
+            getAllRecords()
+            setShowNote(false)
+            setPopup(false)
         }catch(err){
-            console.log("error in fetching records")
+            console.log("error in deleting records")
         }
     }
         
@@ -313,7 +303,7 @@ export default function Tracker(props) {
             <div className='flex flex-col mt-[10px] max-h-[80%] overflow-y-auto'>
                 {!organisedRecords[mandy] ? "" :
                     Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
-                        return <div><h4 className='font-semibold text-sm border-b-1 mr-[50%] mb-[5px]'>{monthdate.slice(-2)} {m_names[month]}</h4> {organisedRecords[mandy][monthdate].map((value,idx)=>{
+                        return <div key={idx}><h4 className='font-semibold text-sm border-b-1 mr-[50%] mb-[5px]'>{monthdate.slice(-2)} {m_names[month]}</h4> {organisedRecords[mandy][monthdate].map((value,idx)=>{
                             return <RecordCard handlePopUp={handlePopUp} key={idx} value={value} />
                         })}</div>
                     }) 
