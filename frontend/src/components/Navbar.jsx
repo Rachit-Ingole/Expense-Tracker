@@ -33,6 +33,7 @@ const SidebarData = [
 export default function Navbar(props) {
     const {data, setData} = props
     const [sidebar, setSidebar] = useState(false);
+    const [userIconClicked,setUserIconClicked] = useState(false);
 
     function logout(e) {
         setData(null)
@@ -41,7 +42,7 @@ export default function Navbar(props) {
     return (
         <>
             <div
-                className='z-50 text-black h-[80px] backdrop-blur-sm text-bold flex justify-between w-full backdrop-grayscale-[100%]'>
+                className='text-black h-[80px] backdrop-blur-sm text-bold flex justify-between w-full backdrop-grayscale-[100%]'>
                 <div className='ml-[30px] flex flex-col justify-center cursor-pointer'
                      onClick={() => (setSidebar(!sidebar))}> {/*LEFT NAVBAR */}
                     <i className="fa-solid fa-bars text-3xl"></i>
@@ -54,9 +55,21 @@ export default function Navbar(props) {
                     </div>
                 </div>
 
-                <div className='mr-[30px] flex flex-col justify-center'>
+                <div className='cursor-pointer mr-[30px] flex flex-col justify-center' onClick={()=>setUserIconClicked(!userIconClicked)}>
                     <i className="fa-solid fa-circle-user text-4xl"></i>
                 </div>
+                
+            </div>
+            <div className={userIconClicked ? 'z-60 select-none fixed top-15 p-5 text-white rounded-lg  right-10 w-[80%] h-[200px] sm:w-[400px] sm:h-[200px] bg-slate-600 flex flex-col gap-[10px] justify-center ' : 'hidden' } >
+                <div className='text-lg bg-slate-900 px-3 py-1 rounded-lg w-full flex justify-between items-center'>
+                    <input className='w-[90%]' value={`Username: ${data.username}`}></input>
+                    <i className="cursor-pointer fa-solid fa-pen-to-square hover:text-blue-500"></i>
+                </div>
+                <div className='text-lg bg-slate-900 px-3 py-1 rounded-lg w-full flex justify-between items-center'>
+                    <input className='w-[90%]' value={`Email Address: ${data.email_address}`}></input>
+                    <i className="cursor-pointer fa-solid fa-pen-to-square hover:text-blue-500"></i>
+                </div>
+                <button className='cursor-pointer bg-slate-900 px-3 py-1 rounded-lg mt-auto hover:text-blue-500 transition duration-300 ease-in-out'>Change Password</button>
             </div>
             <nav className={sidebar ? 'z-60 nav-menu active' : 'z-60 nav-menu'}>
                 <ul className='nav-menu-items flex flex-col justify-between' onClick={() => (setSidebar(!sidebar))}>
