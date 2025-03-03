@@ -103,10 +103,10 @@ export default function Auth(props) {
     </div>
     :
     (page == "login" ? 
-      <div className='w-screen h-screen bg-slate-800 text-white flex justify-center '  onKeyDown={(e)=>{if(e.key == "Enter"){handleLogin(e)}}}>
+      <div className='w-screen h-screen bg-transparent text-white flex justify-center '  onKeyDown={(e)=>{if(e.key == "Enter"){handleLogin(e)}}}>
       <div className='auth-page flex w-screen justify-center align-center items-center text-white '>
         
-        <div className='w-[400px] h-[500px] bg-slate-900 rounded-xl flex flex-col justify-center gap-[20px] border-t-4 border-blue-400 '>
+        <div className='w-[400px] h-[500px] bg-slate-800 rounded-xl flex flex-col justify-center gap-[20px] border-t-4 border-blue-400 '>
           <div className='mx-auto text-2xl sm:text-4xl mt-[10px]'>
             <h1 className='font-Mont font-semibold mt-[10px]'>PennyWise</h1>
           </div>
@@ -136,10 +136,10 @@ export default function Auth(props) {
       </div>
     </div>     
       :
-    <div className='w-screen h-screen bg-slate-800 text-white flex justify-center' onKeyDown={(e)=>{if(e.key == "Enter"){handleRegister(e)}}}>
+    <div className='w-screen h-screen text-white flex justify-center' onKeyDown={(e)=>{if(e.key == "Enter"){handleRegister(e)}}}>
       <div className='auth-page flex w-screen justify-center align-center items-center text-white '>
         
-        <div className='w-[400px] h-[500px] bg-slate-900 rounded-xl flex flex-col justify-center gap-[20px] border-t-4 border-blue-400 '>
+        <div className='w-[400px] h-[500px] bg-slate-800 rounded-xl flex flex-col justify-center gap-[20px] border-t-4 border-blue-400 '>
           <div className='mx-auto text-2xl sm:text-4xl mt-[10px]'>
             <h1 className='font-Mont font-semibold mt-[10px]'>PennyWise</h1>
           </div>
