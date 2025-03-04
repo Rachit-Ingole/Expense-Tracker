@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useReducer, useRef } from 'react'
 import './Navbar.css';
 import {Link} from 'react-router-dom';
 import {useState} from 'react';
@@ -38,8 +38,11 @@ export default function Navbar(props) {
     const [userIconClicked,setUserIconClicked] = useState(false);
     const [changePassword,setChangePassword] = useState(false);
     const [passwordData,setPasswordData] = useState({currentPassword:"",newPassword:"",newPassword2:""});
-    const [userData,setuserData] = useState({username:data.username,email:data.email_address})
+    const [newUsername,setNewUsername] = useState(data.username)
     const [error,setError] = useState("")
+    const [usernameEditable,setUsernameEditable] = useState(false)
+    const userRef = useRef(null)
+    
     const [showPassword,setShowPassword] = useState(false)
 
     function logout(e) {
@@ -72,7 +75,7 @@ export default function Navbar(props) {
             try{
                 const API_URL = `${api_url}/changepassword`
                 let newBody = {...data,'newPassword':passwordData.newPassword};
-                const {data:actualData}  = await axios.post(API_URL,newBody)
+                const {data:actualData}  = await axios.patch(API_URL,newBody)
                 setData(actualData)
                 setError("Password Updated Succesfully")
               }catch(err){
@@ -81,6 +84,35 @@ export default function Navbar(props) {
         }
         updatePasswordInDatabase();
     }
+
+    function changeUsername(){
+
+        if(!newUsername || newUsername == data.username){
+            setNewUsername(data.username);
+            setUsernameEditable(false);
+            return;
+        }
+
+        async function updateUsernameInDatabase() {
+            try{
+                const API_URL = `${api_url}/changeusername`
+                let newBody = {...data,'newUsername':newUsername};
+                const {data:actualData}  = await axios.patch(API_URL,newBody)
+                setData(actualData)
+                
+              }catch(err){
+                setError("Incorrect Password or Something went wrong") 
+              }
+        }
+        updateUsernameInDatabase()
+
+    }
+
+    useEffect(()=>{
+        if(usernameEditable){
+            userRef.current.focus()
+        }
+    },[usernameEditable])
 
     return (
         <>
@@ -140,23 +172,25 @@ export default function Navbar(props) {
                 <div className='mb-[20px]'>
                 <h1 className='text-sm'>Username:</h1>
                 <div className='text-lg pr-2 bg-slate-900 py-1 rounded-lg w-full flex justify-between items-center focus:outline-blue-400'>
-                    <input className='w-[90%] text-md px-1 ' value={userData.username} onChange={(e)=>setPasswordData({...userData,username:e.target.value})}></input>
-                    <i className="cursor-pointer fa-solid fa-pen-to-square hover:text-blue-500"></i>
+                    <input ref={userRef} disabled={!usernameEditable} className='w-[90%] text-md px-1 ' value={newUsername} onChange={(e)=>setNewUsername(e.target.value)}></input>
+                    {!usernameEditable ? 
+                    <i onClick={()=>{setUsernameEditable(!usernameEditable)}} className="cursor-pointer fa-solid fa-pen-to-square hover:text-blue-500"></i>
+                    :
+                    <i onClick={()=>{changeUsername();}} className="cursor-pointer fa-solid fa-floppy-disk hover:text-blue-500"></i>
+                    }
                 </div>
                 </div>
                 <div className='mb-[20px]'>
                 <h1 className='text-sm'>Email Address:</h1>
                 <div className='text-lg pr-2 bg-slate-900 py-1 rounded-lg w-full flex justify-between items-center focus:outline-blue-400'>
-                    <input className='w-[90%] text-md px-1 ' value={userData.email} onChange={(e)=>setPasswordData({...userData,email:e.target.value})}></input>
-                    <i className="cursor-pointer fa-solid fa-pen-to-square hover:text-blue-500"></i>
+                    <h1 className='w-[90%] text-md px-1 '>{data.email_address}</h1>
                 </div>
                 </div>
-                <button className='cursor-pointer mb-[14px] bg-slate-900 px-3 py-1 rounded-lg mt-auto hover:text-blue-500 transition duration-300 ease-in-out'>Save Changes</button>
                 <button className='cursor-pointer bg-slate-900 px-3 py-1 rounded-lg mt-auto hover:text-blue-500 transition duration-300 ease-in-out' onClick={()=>setChangePassword(!changePassword)}>Change Password</button>
                 </>)
                 }
             </div>
-            <div onClick={()=>{setChangePassword(false);setPasswordData({currentPassword:"",newPassword:"",newPassword2:""});setUserIconClicked(false)}} className={userIconClicked ? "fixed w-[100vw] h-[100vh] top-0 left-0 bg-transparent z-40 opacity-[90%] " : "hidden"}>
+            <div onClick={()=>{setError("");setNewUsername(data.username);setUsernameEditable(false);setChangePassword(false);setPasswordData({currentPassword:"",newPassword:"",newPassword2:""});setUserIconClicked(false)}} className={userIconClicked ? "fixed w-[100vw] h-[100vh] top-0 left-0 bg-transparent z-40 opacity-[90%] " : "hidden"}>
             </div>
             
 

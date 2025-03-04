@@ -158,7 +158,7 @@ class UserWithNewPassword(BaseModel):
     password: str
     newPassword: str
 
-@app.post("/api/v1/changepassword",response_model=User)
+@app.patch("/api/v1/changepassword",response_model=User)
 async def change_password(user: UserWithNewPassword):
     user = user.dict()
     returneduser = await app.mongodb["users"].find_one({"email_address": user["email_address"]})
@@ -172,6 +172,26 @@ async def change_password(user: UserWithNewPassword):
     newUser["password"] = user["newPassword"]
     return newUser
 
+
+class UserWithNewUsername(BaseModel):
+    username: str
+    email_address: str
+    password: str
+    newUsername: str
+
+@app.patch("/api/v1/changeusername",response_model=User)
+async def change_password(user: UserWithNewUsername):
+    user = user.dict()
+    returneduser = await app.mongodb["users"].find_one({"email_address": user["email_address"]})
+    if returneduser is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if returneduser["password"] != user["password"]:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
+
+    newUser = await app.mongodb["users"].find_one_and_update({"email_address":user["email_address"]}, {"$set": {"username":user["newUsername"]}})
+
+    newUser["username"] = user["newUsername"]
+    return newUser
 
 # Read one user by email_address
 @app.get("/api/v1/read-user/{email_address}", response_model=User)
