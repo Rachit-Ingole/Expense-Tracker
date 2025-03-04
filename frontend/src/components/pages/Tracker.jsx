@@ -351,7 +351,7 @@ export default function Tracker(props) {
             
             </div>
 
-            <div className='flex p-5 align-center text-md text-red-400 justify-center w-[100%] text-black '>
+            <div className='flex p-5 h-[40px] align-center text-sm font-bold text-red-400 justify-center w-[100%] text-black '>
                 {error}
             </div>
 

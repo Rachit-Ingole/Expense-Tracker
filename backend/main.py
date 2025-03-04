@@ -123,7 +123,6 @@ class RecordAuth(BaseModel):
 @app.delete("/api/v1/deleterecord") 
 async def delete_record(record: RecordAuth = Body(...)):
     user = await app.mongodb["users"].find_one({"email_address": record.email_address})
-    print(user)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     if user["password"] != record.password:
@@ -152,6 +151,26 @@ async def insert_user(user: User):
 async def read_users():
     users = await app.mongodb["users"].find().to_list(None)
     return users
+
+class UserWithNewPassword(BaseModel):
+    username: str
+    email_address: str
+    password: str
+    newPassword: str
+
+@app.post("/api/v1/changepassword",response_model=User)
+async def change_password(user: UserWithNewPassword):
+    user = user.dict()
+    returneduser = await app.mongodb["users"].find_one({"email_address": user["email_address"]})
+    if returneduser is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if returneduser["password"] != user["password"]:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
+
+    newUser = await app.mongodb["users"].find_one_and_update({"email_address":user["email_address"]}, {"$set": {"password":user["newPassword"]}})
+
+    newUser["password"] = user["newPassword"]
+    return newUser
 
 
 # Read one user by email_address

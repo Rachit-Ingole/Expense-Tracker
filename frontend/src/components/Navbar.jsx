@@ -30,13 +30,56 @@ const SidebarData = [
   },
 ];
 
+const api_url = "http://127.0.0.1:8000/api/v1"; 
+
 export default function Navbar(props) {
     const {data, setData} = props
     const [sidebar, setSidebar] = useState(false);
     const [userIconClicked,setUserIconClicked] = useState(false);
+    const [changePassword,setChangePassword] = useState(false);
+    const [passwordData,setPasswordData] = useState({currentPassword:"",newPassword:"",newPassword2:""});
+    const [userData,setuserData] = useState({username:data.username,email:data.email_address})
+    const [error,setError] = useState("")
+    const [showPassword,setShowPassword] = useState(false)
 
     function logout(e) {
         setData(null)
+    }
+
+    function updatePassword(){
+        
+        if(!passwordData.currentPassword || !passwordData.newPassword || !passwordData.newPassword2){
+            setError("Please provide all values")
+            return;
+        }
+
+        if(passwordData.newPassword != passwordData.newPassword2){
+            setError("Password don't match")
+            return;
+        }
+
+        if(passwordData.currentPassword != data.password){
+            setError("Wrong password")
+            return;
+        }
+
+        if(passwordData.currentPassword == passwordData.newPassword){
+            setError("Cannot set the same password")
+            return;
+        }
+
+        async function updatePasswordInDatabase() {
+            try{
+                const API_URL = `${api_url}/changepassword`
+                let newBody = {...data,'newPassword':passwordData.newPassword};
+                const {data:actualData}  = await axios.post(API_URL,newBody)
+                setData(actualData)
+                setError("Password Updated Succesfully")
+              }catch(err){
+                setError("Incorrect Password or Something went wrong") 
+              }
+        }
+        updatePasswordInDatabase();
     }
 
     return (
@@ -55,22 +98,68 @@ export default function Navbar(props) {
                     </div>
                 </div>
 
-                <div className='cursor-pointer mr-[30px] flex flex-col justify-center' onClick={()=>setUserIconClicked(!userIconClicked)}>
+                <div className='cursor-pointer mr-[30px] flex flex-col justify-center' onClick={()=>{setUserIconClicked(!userIconClicked);setPasswordData({currentPassword:"",newPassword:"",newPassword2:""});setChangePassword(false)}}>
                     <i className="fa-solid fa-circle-user text-4xl"></i>
                 </div>
                 
             </div>
-            <div className={userIconClicked ? 'z-60 select-none fixed top-15 p-5 text-white rounded-lg  right-10 w-[80%] h-[200px] sm:w-[400px] sm:h-[200px] bg-slate-600 flex flex-col gap-[10px] justify-center ' : 'hidden' } >
-                <div className='text-lg bg-slate-900 px-3 py-1 rounded-lg w-full flex justify-between items-center'>
-                    <input className='w-[90%]' value={`Username: ${data.username}`}></input>
+            <div style={{'user-select':'none'}} className={userIconClicked ? 'z-60 select-none fixed top-15 p-5 text-white rounded-lg  right-10 w-[80%] sm:w-[400px] bg-slate-600 flex flex-col justify-center' : 'hidden' } >
+                {changePassword ? 
+                (<>
+                <div>
+                <h1 className='text-sm'>Current Password:</h1>
+                <div className='text-lg bg-slate-900 py-1 rounded-lg w-full flex justify-between items-center focus:outline-blue-400 pr-3'>
+                    <input type={showPassword ? "text" : "password"} className='w-[90%] text-md px-1 ' value={passwordData.currentPassword} onChange={(e)=>setPasswordData({...passwordData,currentPassword:e.target.value})}></input>
+                    <i className={!showPassword ? "fa-solid fa-eye cursor-pointer" : "fa-solid fa-eye-slash cursor-pointer"} onClick={()=>{setShowPassword(!showPassword)}}></i>
+                </div>
+                </div>
+
+                <div>
+                <h1 className='text-sm'>New Password:</h1>
+                <div className='text-lg bg-slate-900 py-1 rounded-lg w-full flex justify-between items-center'>
+                    <input type='password' className='w-full text-md px-1' value={passwordData.newPassword} onChange={(e)=>setPasswordData({...passwordData,newPassword:e.target.value})}></input>
+                    
+                </div>
+                </div>
+
+                <div>
+                <h1 className='text-sm'>New Password Again:</h1>
+                <div className='text-lg bg-slate-900 py-1 rounded-lg w-full flex justify-between items-center'>
+                    <input type='password' className='w-full text-md px-1' value={passwordData.newPassword2} onChange={(e)=>setPasswordData({...passwordData,newPassword2:e.target.value})}></input>
+                    
+                </div>
+                </div>
+
+                <div className='flex justify-center h-[30px]'>
+                    <h1 className={error=='Password Updated Succesfully'? 'text-sm text-green-400 font-semibold':'text-sm text-red-400 font-semibold'}>{error}</h1>
+                </div>
+                
+                <button className='cursor-pointer bg-slate-900 px-3 py-1 rounded-lg mt-auto hover:text-blue-500 transition duration-300 ease-in-out' onClick={()=>{updatePassword()}}>Update Password</button>
+                </>) : 
+                (<>
+                <div className='mb-[20px]'>
+                <h1 className='text-sm'>Username:</h1>
+                <div className='text-lg pr-2 bg-slate-900 py-1 rounded-lg w-full flex justify-between items-center focus:outline-blue-400'>
+                    <input className='w-[90%] text-md px-1 ' value={userData.username} onChange={(e)=>setPasswordData({...userData,username:e.target.value})}></input>
                     <i className="cursor-pointer fa-solid fa-pen-to-square hover:text-blue-500"></i>
                 </div>
-                <div className='text-lg bg-slate-900 px-3 py-1 rounded-lg w-full flex justify-between items-center'>
-                    <input className='w-[90%]' value={`Email Address: ${data.email_address}`}></input>
+                </div>
+                <div className='mb-[20px]'>
+                <h1 className='text-sm'>Email Address:</h1>
+                <div className='text-lg pr-2 bg-slate-900 py-1 rounded-lg w-full flex justify-between items-center focus:outline-blue-400'>
+                    <input className='w-[90%] text-md px-1 ' value={userData.email} onChange={(e)=>setPasswordData({...userData,email:e.target.value})}></input>
                     <i className="cursor-pointer fa-solid fa-pen-to-square hover:text-blue-500"></i>
                 </div>
-                <button className='cursor-pointer bg-slate-900 px-3 py-1 rounded-lg mt-auto hover:text-blue-500 transition duration-300 ease-in-out'>Change Password</button>
+                </div>
+                <button className='cursor-pointer mb-[14px] bg-slate-900 px-3 py-1 rounded-lg mt-auto hover:text-blue-500 transition duration-300 ease-in-out'>Save Changes</button>
+                <button className='cursor-pointer bg-slate-900 px-3 py-1 rounded-lg mt-auto hover:text-blue-500 transition duration-300 ease-in-out' onClick={()=>setChangePassword(!changePassword)}>Change Password</button>
+                </>)
+                }
             </div>
+            <div onClick={()=>{setChangePassword(false);setPasswordData({currentPassword:"",newPassword:"",newPassword2:""});setUserIconClicked(false)}} className={userIconClicked ? "fixed w-[100vw] h-[100vh] top-0 left-0 bg-transparent z-40 opacity-[90%] " : "hidden"}>
+            </div>
+            
+
             <nav className={sidebar ? 'z-60 nav-menu active' : 'z-60 nav-menu'}>
                 <ul className='nav-menu-items flex flex-col justify-between' onClick={() => (setSidebar(!sidebar))}>
                     <ul>
