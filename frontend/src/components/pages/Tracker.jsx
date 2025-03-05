@@ -270,7 +270,9 @@ export default function Tracker(props) {
                 headers: {
                   'Content-Type': 'multipart/form-data',
                 }})
-              console.log(actualData)
+              if(actualData.cost){
+                setAmount(actualData.cost)
+              }
             }catch(err){
               setError("Input Missing") 
             }
@@ -340,7 +342,7 @@ export default function Tracker(props) {
                 
             </div>
             <div className='flex flex-col items-center align-center justify-evenly w-[100%] text-black '>
-                <div className='text-sm'>Upload Image of Bill(PNG)</div>
+                <div className='text-sm'>Upload Image of Bill</div>
                 <input id="file" onChange={(e)=>{handleImageUpload(e)}} className='border-1 text-sm rounded-sm' type="file" multiple />
             </div>
 

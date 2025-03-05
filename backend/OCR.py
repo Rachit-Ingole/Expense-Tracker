@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import pytesseract
-
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def preprocess_image(img_path):
     img = cv2.imread(img_path)
@@ -35,16 +35,19 @@ def ocr(img_path):
     text = pytesseract.image_to_string(processed_img, config=custom_config)
     # return integer cost
     textlist = text.split()
-    for i in range(0, len(textlist)):
+    print(textlist)
+    for i in range(0,len(textlist)):
+        i = len(textlist) - i - 1
         if "$" in textlist[i].lower():
             cost = textlist[i]
             cost = cost[1::]
+            cost = convertToFloat(cost)
             return cost
         else:
             continue
 
 
-def cost(text):
+def convertToFloat(text):
     cleaned_text = ""
     try:
         for char in text:
@@ -62,5 +65,4 @@ def cost(text):
 
 
 def scan(img_path):
-    cst = ocr(img_path)
-    return cost(cst)
+    return ocr(img_path)
