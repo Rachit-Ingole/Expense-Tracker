@@ -221,6 +221,7 @@ export default function Navbar(props) {
                     </li>
                 </ul>
             </nav>
+            <div onClick={()=>{setSidebar(false)}} className={sidebar ? "fixed w-[100vw] h-[100vh] top-0 left-0 bg-transparent z-40 opacity-[90%] " : "hidden"}></div>
         </>
     )
 }
