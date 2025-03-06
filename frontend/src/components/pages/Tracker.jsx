@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CategoryDropper from './CategoryDropper';
 import RecordCard from './recordCard';
 
@@ -36,111 +36,14 @@ const m_names = ['January', 'February', 'March',
 
 
 export default function Tracker(props) {
-    const {data,setData} = props
-    const [month,setMonth] = useState(new Date().getMonth())
-    const [year,setYear] = useState(new Date().getFullYear())
+    const {data,setData,month,setMonth,year,setYear,getAllRecords,records,setRecords,organisedRecords,setOrganisedRecords,topbar,setTopbar} = props
+
     const [error,setError] = useState("")
-    const [records,setRecords] = useState([])
-    const [organisedRecords,setOrganisedRecords] = useState([])
-    const [topbar,setTopbar] = useState({expense:0,income:0})
-
-    function sortRecords(data) {
-        // Helper function to parse 'date' and 'time'
-        const parseDateTime = (item) => {
-            const [year, month, day] = item.date.split("-");
-            const [hours, minutes] = item.time.split(":");
-            return new Date(year, month - 1, day, hours, minutes);
-        };
-      
-        // Sort the array
-        console.log("sorted records")
-        setRecords(data.sort((a, b) => {
-          const dateA = parseDateTime(a);
-          const dateB = parseDateTime(b);
-          return dateA - dateB;
-        }));
-    }
-
-
+    let mandy = `${(year).toString().padStart(4,"0")}-${(month+1).toString().padStart(2,"0")}`
     
-
-
-    useEffect(()=>{
-        function organizeDataByMonthAndDate(data) {
-            const result = {};
-          
-            // Helper function to parse 'date' and 'time'
-            const parseDateTime = (item) => {
-              const [year, month, day] = item.date.split("-");
-              const [hours, minutes] = item.time.split("-");
-              return new Date(year, month - 1, day, hours, minutes);
-            };
-          
-            // Sort the array by 'date' and 'time'
-            const sortedData = data.sort((a, b) => {
-              const dateA = parseDateTime(a);
-              const dateB = parseDateTime(b);
-              return dateA - dateB;
-            });
-          
-            // Organize data by months and dates
-            sortedData.forEach(item => {
-              const monthKey = item.date.slice(0, 7); // YYYY-MM
-              const dateKey = item.date; // YYYY-MM-DD
-          
-              if (!result[monthKey]) {
-                result[monthKey] = {};
-              }
-              if (!result[monthKey][dateKey]) {
-                result[monthKey][dateKey] = [];
-              }
-              result[monthKey][dateKey].push(item); // Push the entire item, preserving all other data
-            });
-          
-            return result;
-        }
-          
-        setOrganisedRecords(organizeDataByMonthAndDate(records))
-    },[records])
-
-
-    useEffect(()=>{
-        let total_expense = 0;
-        let total_income = 0;
-        let mandy = `${(year).toString().padStart(4,"0")}-${(month+1).toString().padStart(2,"0")}`
-        if(!organisedRecords[mandy]){
-            setTopbar({expense:0,income:0});  
-            return
-        }
-        Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
-            organisedRecords[mandy][monthdate].map((value,idx)=>{
-                if(value.recordType == "expense"){
-                    total_expense += Number(value.amount);
-                }else{
-                    total_income += Number(value.amount);
-                }
-            })
-        })
-        setTopbar({expense:total_expense.toFixed(2),income:total_income.toFixed(2)});             
-    },[month,organisedRecords])
-
-    async function getAllRecords(){
-        console.log("function ran")
-        try{
-            const API_URL = `${api_url}/getrecords`
-            const {data:actualData}  = await axios.post(API_URL,{"email_address":data["email_address"],"password":data["password"]})
-            console.log(actualData)
-            sortRecords(actualData)
-        }catch(err){
-            console.log("error in fetching records")
-        }
-    }
-
     useEffect(()=>{   
         getAllRecords()
     },[])
-
-    
 
     const [addExpense,setAddExpense] = useState(false)
     const [dataType,setDataType] = useState("expense")
@@ -207,7 +110,6 @@ export default function Tracker(props) {
             setError("Please select a valid amount")
             return
         }
-        console.log(dataType,category,note,data["email_address"],Number(amount).toString(),time,expenseMonth)
         async function create_record() {
             try{
               const API_URL = `${api_url}/createrecord`
@@ -255,7 +157,7 @@ export default function Tracker(props) {
       
         return `${hour12}:${minute} ${period}`;
       }
-    let mandy = `${(year).toString().padStart(4,"0")}-${(month+1).toString().padStart(2,"0")}`
+    
 
     function handleImageUpload(e){
         const formData = new FormData()
@@ -286,7 +188,7 @@ export default function Tracker(props) {
     <>
     <div className='md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] h-[80vh] bg-slate-200 rounded-xl m-auto' >
         <div className={addExpense ? 'hidden md:block w-full relative h-full md:border-r-1 border-black':'w-full relative h-full'} >
-            <div className='flex justify-center border-b-1 pb-[2px] items-center gap-[10px] text-lg' ><i onClick={(e)=>updateMonth(-1)} className="fa-solid fa-arrow-left"></i><span className='w-[150px] text-center'>{m_names[month]}, {year}</span> <i onClick={(e)=>updateMonth(1)} className="fa-solid fa-arrow-right"></i> <input onChange={(e)=>changeMonth(e)} className=' outline-none w-[20px]' type="month" id="start" name="start" min="2018-03"/></div>
+            <div className='flex justify-center border-b-1 pb-[2px] items-center gap-[10px] text-lg' ><i onClick={(e)=>updateMonth(-1)} className="cursor-pointer fa-solid fa-arrow-left"></i><span className='w-[150px] text-center'>{m_names[month]}, {year}</span> <i onClick={(e)=>updateMonth(1)} className="cursor-pointer fa-solid fa-arrow-right"></i> <input onChange={(e)=>changeMonth(e)} className=' outline-none w-[20px]' type="month" id="start" name="start" min="2018-03"/></div>
             
             <div className='flex justify-evenly text-sm border-b-1'>
                 <div className='text-center'>
@@ -316,7 +218,7 @@ export default function Tracker(props) {
                 <i className="text-lg fa-solid fa-plus"></i>
             </button>
         </div>
-        <div className='md:w-[45%] h-[80%] flex flex-col justify-between' hidden={!addExpense}>
+        <div className='mt-[20px] md:w-[45%] h-[80%] flex flex-col justify-between' hidden={!addExpense}>
             <div className='flex w-[100%] justify-evenly text-black'>
                 <div onClick={(e)=>{updateMonthandTime();setCategory(null);setDataType("income")}} className={dataType=="income" ? "text-blue-600 font-bold cursor-pointer" : "cursor-pointer"}>Income</div>
                 <div onClick={(e)=>{updateMonthandTime();setCategory(null);setDataType("expense")}} className={dataType=="expense" ? "text-blue-600 font-bold  cursor-pointer" : "cursor-pointer"}>Expense</div>
@@ -348,7 +250,7 @@ export default function Tracker(props) {
 
             <div className='flex px-5 mt-[5px] align-center justify-center w-[100%] text-black '>
                 
-                <div className='border-r-2 pr-[10px] border-black'><input onChange={(e)=>{console.log(e.target.value);setExpenseMonth(e.target.value)}} className=' outline-none' type="date" id="start" name="start" min="2022-01" value={expenseMonth}/></div>
+                <div className='border-r-2 pr-[10px] border-black'><input onChange={(e)=>{setExpenseMonth(e.target.value)}} className=' outline-none' type="date" id="start" name="start" min="2022-01" value={expenseMonth}/></div>
                 <div className='ml-[10px]'><input onChange={(e)=>{setTime(e.target.value)}} type="time" id="appt" name="appt" value={time}></input></div>
             
             </div>

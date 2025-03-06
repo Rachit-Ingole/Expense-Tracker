@@ -12,9 +12,6 @@ node_modules
 dist
 dist-ssr
 *.local
-creds.env
-backend/creds.env
-
 
 
 # Editor directories and files
