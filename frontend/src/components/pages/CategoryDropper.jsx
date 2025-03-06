@@ -1,5 +1,4 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import React from 'react'
 
 export default function CategoryDropper(props) {
@@ -11,7 +10,7 @@ export default function CategoryDropper(props) {
       <div>
         <MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 ">
           {category ? category : "Select Category"}
-          <ChevronDownIcon aria-hidden="true" className="-mr-1 size-5 text-gray-400" />
+          <i className="fa-solid mt-[4px] fa-angle-down"></i>
         </MenuButton>
       </div>
 

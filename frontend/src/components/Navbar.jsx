@@ -12,7 +12,7 @@ const SidebarData = [
   },
   {
     title: 'Expense Report',
-    path: '/er',
+    path: '/ea',
     icon: <i className="fa-solid fa-chart-simple"></i>,
     cName: 'nav-text'
   },
@@ -135,7 +135,7 @@ export default function Navbar(props) {
                 </div>
                 
             </div>
-            <div style={{'user-select':'none'}} className={userIconClicked ? 'z-60 select-none fixed top-15 p-5 text-white rounded-lg  right-10 w-[80%] sm:w-[400px] bg-slate-600 flex flex-col justify-center' : 'hidden' } >
+            <div className={userIconClicked ? 'z-60 select-none fixed top-15 p-5 text-white rounded-lg  right-10 w-[80%] sm:w-[400px] bg-slate-600 flex flex-col justify-center' : 'hidden' } >
                 {changePassword ? 
                 (<>
                 <div>
