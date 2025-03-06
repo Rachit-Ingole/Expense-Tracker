@@ -103,7 +103,7 @@ export default function Auth(props) {
     </div>
     :
     (page == "login" ? 
-      <div className='w-screen h-screen bg-transparent text-white flex justify-center '  onKeyDown={(e)=>{if(e.key == "Enter"){handleLogin(e)}}}>
+      <div className='bg-slate-200 w-screen h-screen text-white flex justify-center '  onKeyDown={(e)=>{if(e.key == "Enter"){handleLogin(e)}}}>
       <div className='auth-page flex w-screen justify-center align-center items-center text-white '>
         
         <div className='w-[400px] h-[500px] bg-slate-800 rounded-xl flex flex-col justify-center gap-[20px] border-t-4 border-blue-400 '>
@@ -136,7 +136,7 @@ export default function Auth(props) {
       </div>
     </div>     
       :
-    <div className='w-screen h-screen text-white flex justify-center' onKeyDown={(e)=>{if(e.key == "Enter"){handleRegister(e)}}}>
+    <div className='bg-slate-200 w-screen h-screen text-white flex justify-center' onKeyDown={(e)=>{if(e.key == "Enter"){handleRegister(e)}}}>
       <div className='auth-page flex w-screen justify-center align-center items-center text-white '>
         
         <div className='w-[400px] h-[500px] bg-slate-800 rounded-xl flex flex-col justify-center gap-[20px] border-t-4 border-blue-400 '>
