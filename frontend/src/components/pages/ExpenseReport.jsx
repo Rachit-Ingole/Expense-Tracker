@@ -7,7 +7,7 @@ const api_url = "http://127.0.0.1:8000/api/v1";
 const m_names = ['January', 'February', 'March', 
     'April', 'May', 'June', 'July', 
     'August', 'September', 'October', 'November', 'December'];
-    const c_icons = {
+const c_icons = {
         "Food": <i className="fa-solid fa-utensils mr-[5px]"></i>,
         "Beauty": <i className="fa-solid fa-star mr-[5px]"></i>,
         "Bills": <i className="fa-solid fa-file-invoice-dollar mr-[5px]"></i>,
@@ -40,28 +40,33 @@ export default function ExpenseReport(props) {
     const {data,setData,month,setMonth,year,setYear,records,setRecords,organisedRecords,getAllRecords,setOrganisedRecords,topbar,setTopbar} = props
     const [dropdownVal,setDropdownVal] = useState("Expense Overview")
     const [chartData,setChartData] = useState({})
+    const [recordsByCategory,setRecordsByCategory] = useState({})
     let mandy = `${(year)?.toString().padStart(4,"0")}-${(month+1)?.toString().padStart(2,"0")}`
 
     useEffect(()=>{
         let newChartData = {};
+        let newRecordsByCategory = {};
         if(!organisedRecords[mandy]){
             setChartData([["Category","Amount"]])
             return
         }
-
+        console.log(organisedRecords)
         Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
             organisedRecords[mandy][monthdate].map((value,index)=>{
                 if((dropdownVal == "Expense Overview" && value.recordType == "income") || (dropdownVal == "Income Overview" && value.recordType == "expense")){
                     return
                 }
                 if(newChartData[value.category]){
+                    newRecordsByCategory[value.category] = [...newRecordsByCategory[value.category],value];
                     newChartData[value.category] += 1*value.amount;
                 }else{
+                    newRecordsByCategory[value.category] = [value];
                     newChartData[value.category] = 1*value.amount;
                 }
             })
         }) 
-        console.log([...Object.entries(newChartData)])
+        console.log(newRecordsByCategory)
+        setRecordsByCategory(newRecordsByCategory)
         setChartData([["Category","Amount"],...Object.entries(newChartData)])
     },[dropdownVal,organisedRecords,month,year])
 
@@ -219,6 +224,7 @@ export default function ExpenseReport(props) {
                         data={chartData}
                         options={{
                             pieStartAngle: 100,
+                            pieHole: 0.4,
                             backgroundColor: "transparent",
                             legend:{
                                 position: `${(window.innerWidth < 600) ? "bottom" :"right"}`,
@@ -232,9 +238,9 @@ export default function ExpenseReport(props) {
                 </div>
                 <div>
                 {!organisedRecords[mandy] ? "" :
-                    Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
-                        return <div key={idx}><h4 className='font-semibold text-sm border-b-1 mr-[50%] mb-[5px]'>{monthdate.slice(-2)} {m_names[month]}</h4> {organisedRecords[mandy][monthdate].map((value,idx)=>{
-                            return <RecordCard handlePopUp={handlePopUp} key={idx} value={value} />
+                    Object.keys(recordsByCategory).map((header,idx)=>{
+                        return <div key={idx}><h4 className='font-semibold text-sm border-b-1 mr-[50%] mb-[5px]'>{header}</h4> {recordsByCategory[header].map((value,idx)=>{
+                            return <RecordCard analysis={true} handlePopUp={handlePopUp} key={idx} value={value} />
                         })}</div>
                     }) 
                 }
