@@ -50,25 +50,46 @@ export default function ExpenseReport(props) {
             setChartData([["Category","Amount"]])
             return
         }
-        console.log(organisedRecords)
-        Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
-            organisedRecords[mandy][monthdate].map((value,index)=>{
-                if((dropdownVal == "Expense Overview" && value.recordType == "income") || (dropdownVal == "Income Overview" && value.recordType == "expense")){
-                    return
+        
+        if(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview"){
+            Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
+                organisedRecords[mandy][monthdate].map((value,index)=>{
+                    if((dropdownVal == "Expense Overview" && value.recordType == "income") || (dropdownVal == "Income Overview" && value.recordType == "expense")){
+                        return
+                    }
+                    if(newChartData[value.category]){
+                        newRecordsByCategory[value.category] = [...newRecordsByCategory[value.category],value];
+                        newChartData[value.category] += 1*value.amount;
+                    }else{
+                        newRecordsByCategory[value.category] = [value];
+                        newChartData[value.category] = 1*value.amount;
+                    }
+                })
+            }) 
+            setRecordsByCategory(newRecordsByCategory)
+            setChartData([["Category","Amount"],...Object.entries(newChartData)])
+        }else{
+            Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
+                let total = 0;
+                organisedRecords[mandy][monthdate].map((value,index)=>{
+                    if((dropdownVal == "Expense Flow" && value.recordType == "income") || (dropdownVal == "Income Flow" && value.recordType == "expense")){
+                        return
+                    }
+                    total += 1*value.amount;
+                })
+                let dates = monthdate.split("-")
+                if(!total){
+                    return;
                 }
-                if(newChartData[value.category]){
-                    newRecordsByCategory[value.category] = [...newRecordsByCategory[value.category],value];
-                    newChartData[value.category] += 1*value.amount;
-                }else{
-                    newRecordsByCategory[value.category] = [value];
-                    newChartData[value.category] = 1*value.amount;
-                }
-            })
-        }) 
-        console.log(newRecordsByCategory)
-        setRecordsByCategory(newRecordsByCategory)
-        setChartData([["Category","Amount"],...Object.entries(newChartData)])
-    },[dropdownVal,organisedRecords,month,year])
+                newChartData[1*dates[2]] = 1*total;
+            }) //Expense Income
+
+            setRecordsByCategory(newRecordsByCategory)
+            setChartData([[m_names[month],dropdownVal=="Expense Flow" ? "Expense" : "Income"],...Object.entries(newChartData)])
+
+        }
+    }
+    ,[dropdownVal,organisedRecords,month,year])
 
 
     useEffect(()=>{   
@@ -142,6 +163,11 @@ export default function ExpenseReport(props) {
         return `${hour12}:${minute} ${period}`;
       }
     
+      function changeMonth(e){
+        const [year,month] = e.target.value.split("-") 
+        setMonth(month-1)
+        setYear(year)
+    }
 
 
 
@@ -217,12 +243,14 @@ export default function ExpenseReport(props) {
                     
                 </Menu>
             </div>
-            <div className='flex flex-col mt-[10px] max-h-[75%] overflow-y-auto'>
+
+            
+            <div className='flex  flex-col mt-[10px] max-h-[75%] overflow-y-auto'>
                 <div>
                     {chartData.length > 1 ? <Chart
-                        chartType="PieChart"
+                        chartType={(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? "PieChart" : "LineChart"}
                         data={chartData}
-                        options={{
+                        options={(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? {
                             pieStartAngle: 100,
                             pieHole: 0.4,
                             backgroundColor: "transparent",
@@ -230,11 +258,34 @@ export default function ExpenseReport(props) {
                                 position: `${(window.innerWidth < 600) ? "bottom" :"right"}`,
                                 alignment:"center"
                             }
+                          } : {
+                                hAxis: {
+                                    title: m_names[month],
+                                    minValue:0,
+                                    maxValue:31,
+                                },
+                                vAxis: { 
+                                    title: dropdownVal=="Expense Flow" ? "Expense" : "Income",
+                                    gridlines: { count: 6, color: "#000000" }, // Change color & count
+                                    minorGridlines: { count: 0},
+                                },
+                                legend: "none",
+                                backgroundColor: "transparent",
+                                curveType: "none",
+                                colors: [dropdownVal=="Expense Flow" ? "rgb(240, 68, 68)" : "#4CAF50"],
+                                series: {
+                                    0: {
+                                      pointShape: "circle", // Shapes: "circle", "square", "triangle"
+                                      pointSize: 7, // Size of the dots
+                                      pointStrokeColor: "#000000", // Border color (black)
+                                      pointFillColor: "#ffffff", // Inner color (white)
+                                    },
+                                  }
                           }}
                         width={"100%"}
                         height={"400px"}
                     /> : <div className='h-[400px] flex flex-col justify-center items-center font-bold text-gray-600 w-full'> <i className="fa-solid fa-triangle-exclamation"></i>No data for this month</div>}
-                    <h1 className='text-center text-xs m-2 uppercase text-gray-600 font-bold'>scroll to see records <i className="fa-solid fa-angles-down"></i></h1>
+                    {(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? <h1 className='text-center text-xs m-2 uppercase text-gray-600 font-bold'>scroll to see records <i className="fa-solid fa-angles-down"></i></h1> :<h1 className='text-center text-xs m-2 uppercase text-gray-600 font-bold'>scroll to see calendar <i className="fa-solid fa-angles-down"></i></h1>}
                 </div>
                 <div>
                 {!organisedRecords[mandy] ? "" :
@@ -246,10 +297,10 @@ export default function ExpenseReport(props) {
                 }
                 </div>
             </div>
-
-            <button className='cursor-pointer flex justify-center items-center text-white h-[45px] w-[45px] z-10 p-2 bg-blue-400 rounded-[50%] absolute bottom-[15px] right-[15px]' onClick={(e)=>{console.log("Unpurposed button")}}>
+            
+            {/* <button className='cursor-pointer flex justify-center items-center text-white h-[45px] w-[45px] z-10 p-2 bg-blue-400 rounded-[50%] absolute bottom-[15px] right-[15px]' onClick={(e)=>{console.log("Unpurposed button")}}>
                 <i className="text-lg fa-solid fa-plus"></i>
-            </button>
+            </button> */}
         </div>
         <div className={popup ? 'opacity-25 bg-black absolute top-0 left-0 fixed w-[100vw] h-[100vh]':'hidden'} onClick={(e)=>{setShowNote(false);setPopup(false)}}></div>
         <div className={popup ? "fixed top-1/2 left-1/2 translate-x-[-50%] backdrop-blur shadow-md translate-y-[-50%] rounded-lg bg-slate-400 h-[300px] w-[300px]" : "hidden"}>
