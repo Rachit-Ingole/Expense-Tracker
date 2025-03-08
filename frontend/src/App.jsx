@@ -1,6 +1,5 @@
 import {useState} from 'react'
 import Auth from './components/Auth'
-import Navbar from './components/Navbar'
 import Main from './components/Main'
 
 function App() {

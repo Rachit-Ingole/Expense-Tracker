@@ -19,6 +19,7 @@ dist-ssr
 /__pycache__/
 /pycache/*
 ./pycache/*
+backend/pycache/*
 backend/__pycache__/*
 backend/uploads
 backend/pycache/*

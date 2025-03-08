@@ -4,7 +4,6 @@ import React from 'react'
 export default function CategoryDropper(props) {
     const {type,setCategory,category} = props
 
-
   return (
     <Menu as="div" className="relative inline-block text-left w-full">
       <div>

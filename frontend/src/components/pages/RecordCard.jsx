@@ -1,6 +1,8 @@
 import React from 'react'
+import { m_names } from '../../utils/variables';
+import { convertTo12HourFormat } from '../../utils/functions';
 
-const c_icons = {
+export const c_icons = {
   "Food": <i className="fa-solid fa-utensils mr-[5px]"></i>,
   "Beauty": <i className="fa-solid fa-star mr-[5px]"></i>,
   "Bills": <i className="fa-solid fa-file-invoice-dollar mr-[5px]"></i>,
@@ -27,31 +29,10 @@ const c_icons = {
   "Sale": <i className="fa-solid fa-tags mr-[5px]"></i>,
   "Others": <i className="fa-solid fa-ellipsis-h mr-[5px]"></i>
 }
-const m_names = ['January', 'February', 'March', 
-  'April', 'May', 'June', 'July', 
-  'August', 'September', 'October', 'November', 'December'];
-
-function convertTo12HourFormat(timeString) {
-  if(!timeString){return}
-  const [hour, minute] = timeString.split(":");
-  let period = "am";
-  let hour12 = parseInt(hour);
-
-  if (hour12 >= 12) {
-    period = "pm";
-    if (hour12 > 12) {
-      hour12 -= 12;
-    }
-  } else if (hour12 === 0) {
-    hour12 = 12;
-  }
-
-  return `${hour12}:${minute} ${period}`;
-}
 
 
 export default function RecordCard(props) {
-    const {value,idx,analysis,handlePopUp} = props
+    const {value,analysis,handlePopUp} = props
 
     return (
       
@@ -60,7 +41,7 @@ export default function RecordCard(props) {
           {c_icons[value["category"]]}
         </div>
         <div className='ml-[2px]'>
-          {analysis ? `${value["date"].slice(-2)} ${m_names[(1*value["date"].slice(5,7))-1].slice(0,3)}  ${convertTo12HourFormat(value["time"])}`: value["category"]}
+          {analysis ? `${value["date"].slice(-2)} ${m_names[(1*value["date"].slice(5,7))-1].slice(0,3)}  ${convertTo12HourFormat(value["time"]).toLowerCase()}`: value["category"]}
         </div>
         <div className={value["recordType"]=="income"?' align-middle pr-[20px] font-semibold ml-auto text-green-600':'pr-[20px] font-semibold ml-auto text-red-400 align-middle'}>
           {value["recordType"]=="expense"?"-":""}₹{Number(value["amount"]).toFixed(2)}

@@ -5,7 +5,9 @@ import Tracker from './pages/Tracker';
 import CExchange from './pages/CExchange';
 import EmailReminder from './pages/EmailReminder';
 import ExpenseReport from './pages/ExpenseReport';
-const api_url = "http://127.0.0.1:8000/api/v1";
+import { api_url } from '../utils/variables';
+import { organizeDataByMonthAndDate } from '../utils/functions';
+
 export default function Main(props) {
     const {data, setData} = props;
     const [month,setMonth] = useState(new Date().getMonth())
@@ -13,16 +15,47 @@ export default function Main(props) {
     const [records,setRecords] = useState([])
     const [organisedRecords,setOrganisedRecords] = useState([])
     const [topbar,setTopbar] = useState({expense:0,income:0})
-  
+    const [popup,setPopup] = useState(false)
+    const [popupVal,setPopupVal] = useState([])
+    const [showNote,setShowNote] = useState(false)
+    
+    function handlePopUp(value){
+        setPopupVal(value)
+        setPopup(true)
+    }
+
+    function changeMonth(e){
+      const [year,month] = e.target.value.split("-") 
+      setMonth(month-1)
+      setYear(year)
+    }
+    
+    function updateMonth(operator){
+      if(operator == -1){
+          if(month > 0){
+              setMonth(Number(month)-1);
+          }else{
+              setMonth(11);
+              setYear(Number(year)-1);
+          }
+      }else{
+          if(month < 11){
+              setMonth(Number(month)+1);
+          }else{
+              setMonth(0);
+              setYear(Number(year)+1);
+          }
+      }
+    }
+
     function sortRecords(data) {
-        // Helper function to parse 'date' and 'time'
+
         const parseDateTime = (item) => {
             const [year, month, day] = item.date.split("-");
             const [hours, minutes] = item.time.split(":");
             return new Date(year, month - 1, day, hours, minutes);
         };
       
-        // Sort the array
         setRecords(data.sort((a, b) => {
           const dateA = parseDateTime(a);
           const dateB = parseDateTime(b);
@@ -50,43 +83,7 @@ export default function Main(props) {
         setTopbar({expense:total_expense.toFixed(2),income:total_income.toFixed(2)});             
     },[month,organisedRecords])
 
-    
-
-
     useEffect(()=>{
-        function organizeDataByMonthAndDate(data) {
-            const result = {};
-          
-            // Helper function to parse 'date' and 'time'
-            const parseDateTime = (item) => {
-              const [year, month, day] = item.date.split("-");
-              const [hours, minutes] = item.time.split("-");
-              return new Date(year, month - 1, day, hours, minutes);
-            };
-          
-            // Sort the array by 'date' and 'time'
-            const sortedData = data.sort((a, b) => {
-              const dateA = parseDateTime(a);
-              const dateB = parseDateTime(b);
-              return dateA - dateB;
-            });
-          
-            // Organize data by months and dates
-            sortedData.forEach(item => {
-              const monthKey = item.date.slice(0, 7); // YYYY-MM
-              const dateKey = item.date; // YYYY-MM-DD
-          
-              if (!result[monthKey]) {
-                result[monthKey] = {};
-              }
-              if (!result[monthKey][dateKey]) {
-                result[monthKey][dateKey] = [];
-              }
-              result[monthKey][dateKey].push(item); // Push the entire item, preserving all other data
-            });
-          
-            return result;
-        }
         setOrganisedRecords(organizeDataByMonthAndDate(records))
     },[records])
     
@@ -100,6 +97,7 @@ export default function Main(props) {
             console.log("error in fetching records")
         }
     }
+
     async function deleteRecord(value){
       try{
           const API_URL = `${api_url}/deleterecord`
@@ -117,8 +115,8 @@ export default function Main(props) {
     <Router>
         <Navbar data={data} setData={setData}/>
         <Routes>
-          <Route path='/' exact element={<Tracker deleteRecord={deleteRecord} getAllRecords={getAllRecords} data={data} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar}/>} />
-          <Route path='/ea' element={<ExpenseReport deleteRecord={deleteRecord} getAllRecords={getAllRecords} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar} />}/>
+          <Route path='/' exact element={<Tracker showNote={showNote} setShowNote={setShowNote} popup={popup} setPopup={setPopup} popupVal={popupVal} handlePopUp={handlePopUp} updateMonth={updateMonth} changeMonth={changeMonth} deleteRecord={deleteRecord} getAllRecords={getAllRecords} data={data} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar}/>} />
+          <Route path='/ea' element={<ExpenseReport showNote={showNote} setShowNote={setShowNote} popup={popup} setPopup={setPopup} popupVal={popupVal} handlePopUp={handlePopUp} updateMonth={updateMonth} changeMonth={changeMonth} deleteRecord={deleteRecord} getAllRecords={getAllRecords} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar} />}/>
           <Route path='/ce' element={<CExchange/>} />
           <Route path='/er' element={<EmailReminder/>} />
         </Routes>

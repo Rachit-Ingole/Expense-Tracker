@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { api_url } from '../../utils/variables';
 
 export default function EmailReminder(){
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ export default function EmailReminder(){
     data.append('subject', "BILL PAYMENT EMAIL REMINDER"); // optional, if you want to override default subject
     
     try {
-      const response = await axios.post('http://localhost:8000/schedule-email/', data, {
+      const response = await axios.post(`${api_url}/schedule-email/`, data, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },

@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useRef } from 'react'
 import './Navbar.css';
 import {Link} from 'react-router-dom';
 import {useState} from 'react';
-
+import { api_url } from '../utils/variables';
 const SidebarData = [
   {
     title: 'Expense Tracker',
@@ -30,8 +30,6 @@ const SidebarData = [
   },
 ];
 
-const api_url = "http://127.0.0.1:8000/api/v1"; 
-
 export default function Navbar(props) {
     const {data, setData} = props
     const [sidebar, setSidebar] = useState(false);
@@ -45,7 +43,7 @@ export default function Navbar(props) {
     
     const [showPassword,setShowPassword] = useState(false)
 
-    function logout(e) {
+    function logout() {
         setData(null)
     }
 

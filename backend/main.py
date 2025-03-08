@@ -263,7 +263,7 @@ def schedule_email(recipient: str, subject: str, remind_of: str, scheduled_datet
     send_email(recipient, subject, remind_of)
 
 
-@app.post("/schedule-email/")
+@app.post("/api/v1/schedule-email/")
 def schedule_email_api(
         background_tasks: BackgroundTasks,
         recipient: str = Form(...),
