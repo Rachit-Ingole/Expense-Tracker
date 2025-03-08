@@ -100,13 +100,25 @@ export default function Main(props) {
             console.log("error in fetching records")
         }
     }
+    async function deleteRecord(value){
+      try{
+          const API_URL = `${api_url}/deleterecord`
+          let newVal = {"recordType":value.recordType,"category":value.category,"amount":value.amount,"time":value.time,"date":value.date,"email_address":value.email_address,"note":value.note,"password":data.password}
+          await axios.delete(API_URL,{data:newVal})
+          getAllRecords()
+          setShowNote(false)
+          setPopup(false)
+      }catch(err){
+          console.log("error in deleting records")
+      }
+  }
     
     return (
     <Router>
         <Navbar data={data} setData={setData}/>
         <Routes>
-          <Route path='/' exact element={<Tracker getAllRecords={getAllRecords} data={data} organisedRecords={organisedRecords} setOrganisedRecords={setOrganisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar} setTopbar={setTopbar} records={records} setRecords={setRecords} setData={setData}/>} />
-          <Route path='/ea' element={<ExpenseReport getAllRecords={getAllRecords} data={data} organisedRecords={organisedRecords} setOrganisedRecords={setOrganisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar} setTopbar={setTopbar} records={records} setRecords={setRecords} setData={setData}/>} />
+          <Route path='/' exact element={<Tracker deleteRecord={deleteRecord} getAllRecords={getAllRecords} data={data} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar}/>} />
+          <Route path='/ea' element={<ExpenseReport deleteRecord={deleteRecord} getAllRecords={getAllRecords} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar} />}/>
           <Route path='/ce' element={<CExchange/>} />
           <Route path='/er' element={<EmailReminder/>} />
         </Routes>

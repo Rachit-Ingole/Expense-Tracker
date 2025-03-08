@@ -36,11 +36,11 @@ const m_names = ['January', 'February', 'March',
 
 
 export default function Tracker(props) {
-    const {data,setData,month,setMonth,year,setYear,getAllRecords,records,setRecords,organisedRecords,setOrganisedRecords,topbar,setTopbar} = props
+    const {data,month,setMonth,year,setYear,deleteRecord,getAllRecords,organisedRecords,topbar} = props
 
     const [error,setError] = useState("")
     let mandy = `${(year).toString().padStart(4,"0")}-${(month+1).toString().padStart(2,"0")}`
-    
+
     useEffect(()=>{   
         getAllRecords()
     },[])
@@ -86,19 +86,6 @@ export default function Tracker(props) {
     function handlePopUp(value){
         setPopupVal(value)
         setPopup(true)
-    }
-
-    async function deleteRecord(value){
-        try{
-            const API_URL = `${api_url}/deleterecord`
-            let newVal = {"recordType":value.recordType,"category":value.category,"amount":value.amount,"time":value.time,"date":value.date,"email_address":value.email_address,"note":value.note,"password":data.password}
-            await axios.delete(API_URL,{data:newVal})
-            getAllRecords()
-            setShowNote(false)
-            setPopup(false)
-        }catch(err){
-            console.log("error in deleting records")
-        }
     }
         
     function handleSave(e){

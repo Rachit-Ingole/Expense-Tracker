@@ -51,12 +51,11 @@ const formatToIndianNotation = (num) => {
 };
 
 export default function ExpenseReport(props) {
-    const {data,setData,month,setMonth,year,setYear,records,setRecords,organisedRecords,getAllRecords,setOrganisedRecords,topbar,setTopbar} = props
+    const {month,setMonth,year,setYear,organisedRecords,getAllRecords,topbar} = props
     const [dropdownVal,setDropdownVal] = useState("Expense Overview")
     const [chartData,setChartData] = useState({})
     const [recordsByCategory,setRecordsByCategory] = useState({})
     const [recordsByDay,setRecordsByDay] = useState({})
-    const [calendarData,setCalendarData] = useState({})
     let mandy = `${(year)?.toString().padStart(4,"0")}-${(month+1)?.toString().padStart(2,"0")}`
 
     useEffect(()=>{
@@ -82,7 +81,7 @@ export default function ExpenseReport(props) {
                     }
                 })
             }) 
-            
+
             setRecordsByCategory(newRecordsByCategory)
             setChartData([["Category","Amount"],...Object.entries(newChartData)])
         }else{
@@ -257,6 +256,7 @@ export default function ExpenseReport(props) {
                         chartType={(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? "PieChart" : "LineChart"}
                         data={chartData}
                         options={(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? {
+                            pieSliceText: "percentage",
                             pieStartAngle: 100,
                             pieHole: 0.4,
                             backgroundColor: "transparent",
@@ -294,7 +294,7 @@ export default function ExpenseReport(props) {
                     {(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? <h1 className='text-center text-xs m-2 uppercase text-gray-600 font-bold'>scroll to see records <i className="fa-solid fa-angles-down"></i></h1> :<h1 className='text-center text-xs m-2 uppercase text-gray-600 font-bold'>scroll to see calendar <i className="fa-solid fa-angles-down"></i></h1>}
                 </div>
                 {(dropdownVal == "Expense Flow" || dropdownVal == "Income Flow")?
-                <div className="mt-1 flex p-2 justify-center">
+                <div className="mt-1 flex p-2 md:mx-20 lg:mx-40 xl:mx-50 justify-center">
                     <Calendar 
                         activeStartDate={new Date(year, month, 1)}
                         tileDisabled={()=>{return true}}
