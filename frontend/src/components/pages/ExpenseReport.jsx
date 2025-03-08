@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import RecordCard from './recordCard';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Chart } from "react-google-charts";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import "./ExpenseReport.css"
+
 
 const api_url = "http://127.0.0.1:8000/api/v1";
 const m_names = ['January', 'February', 'March', 
@@ -35,12 +39,24 @@ const c_icons = {
         "Others": <i className="fa-solid fa-ellipsis-h mr-[5px]"></i>
       }
 
+const formatToIndianNotation = (num) => {
+    if (num >= 10000000) {
+      return (num / 10000000).toFixed(1) + "Cr"; 
+    } else if (num >= 100000) {
+      return (num / 100000).toFixed(1) + "L"; 
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "K"; 
+    }
+    return num.toFixed(2); 
+};
 
 export default function ExpenseReport(props) {
     const {data,setData,month,setMonth,year,setYear,records,setRecords,organisedRecords,getAllRecords,setOrganisedRecords,topbar,setTopbar} = props
     const [dropdownVal,setDropdownVal] = useState("Expense Overview")
     const [chartData,setChartData] = useState({})
     const [recordsByCategory,setRecordsByCategory] = useState({})
+    const [recordsByDay,setRecordsByDay] = useState({})
+    const [calendarData,setCalendarData] = useState({})
     let mandy = `${(year)?.toString().padStart(4,"0")}-${(month+1)?.toString().padStart(2,"0")}`
 
     useEffect(()=>{
@@ -66,6 +82,7 @@ export default function ExpenseReport(props) {
                     }
                 })
             }) 
+            
             setRecordsByCategory(newRecordsByCategory)
             setChartData([["Category","Amount"],...Object.entries(newChartData)])
         }else{
@@ -82,9 +99,9 @@ export default function ExpenseReport(props) {
                     return;
                 }
                 newChartData[1*dates[2]] = 1*total;
-            }) //Expense Income
+            })
 
-            setRecordsByCategory(newRecordsByCategory)
+            setRecordsByDay(newChartData)
             setChartData([[m_names[month],dropdownVal=="Expense Flow" ? "Expense" : "Income"],...Object.entries(newChartData)])
 
         }
@@ -114,25 +131,13 @@ export default function ExpenseReport(props) {
             }
         }
     }
+
     const [showNote,setShowNote] = useState(false)
     const [popup,setPopup] = useState(false)
     const [popupVal,setPopupVal] = useState([])
     function handlePopUp(value){
         setPopupVal(value)
         setPopup(true)
-    }
-
-    async function deleteRecord(value){
-        try{
-            const API_URL = `${api_url}/deleterecord`
-            let newVal = {"recordType":value.recordType,"category":value.category,"amount":value.amount,"time":value.time,"date":value.date,"email_address":value.email_address,"note":value.note,"password":data.password}
-            await axios.delete(API_URL,{data:newVal})
-            getAllRecords()
-            setShowNote(false)
-            setPopup(false)
-        }catch(err){
-            console.log("error in deleting records")
-        }
     }
         
     function formatDate(dateString) {
@@ -145,7 +150,7 @@ export default function ExpenseReport(props) {
         return `${monthName} ${parseInt(day)}, ${year}`;
       }
 
-      function convertTo12HourFormat(timeString) {
+    function convertTo12HourFormat(timeString) {
         if(!timeString){return}
         const [hour, minute] = timeString.split(":");
         let period = "AM";
@@ -163,7 +168,7 @@ export default function ExpenseReport(props) {
         return `${hour12}:${minute} ${period}`;
       }
     
-      function changeMonth(e){
+    function changeMonth(e){
         const [year,month] = e.target.value.split("-") 
         setMonth(month-1)
         setYear(year)
@@ -247,7 +252,8 @@ export default function ExpenseReport(props) {
             
             <div className='flex  flex-col mt-[10px] max-h-[75%] overflow-y-auto'>
                 <div>
-                    {chartData.length > 1 ? <Chart
+                    {chartData.length > 1 ? 
+                    <Chart
                         chartType={(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? "PieChart" : "LineChart"}
                         data={chartData}
                         options={(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? {
@@ -266,7 +272,7 @@ export default function ExpenseReport(props) {
                                 },
                                 vAxis: { 
                                     title: dropdownVal=="Expense Flow" ? "Expense" : "Income",
-                                    gridlines: { count: 6, color: "#000000" }, // Change color & count
+                                    gridlines: { count: 6, color: "#000000" },
                                     minorGridlines: { count: 0},
                                 },
                                 legend: "none",
@@ -275,8 +281,8 @@ export default function ExpenseReport(props) {
                                 colors: [dropdownVal=="Expense Flow" ? "rgb(240, 68, 68)" : "#4CAF50"],
                                 series: {
                                     0: {
-                                      pointShape: "circle", // Shapes: "circle", "square", "triangle"
-                                      pointSize: 7, // Size of the dots
+                                      pointShape: "circle",
+                                      pointSize: 7,
                                       pointStrokeColor: "#000000", // Border color (black)
                                       pointFillColor: "#ffffff", // Inner color (white)
                                     },
@@ -287,6 +293,21 @@ export default function ExpenseReport(props) {
                     /> : <div className='h-[400px] flex flex-col justify-center items-center font-bold text-gray-600 w-full'> <i className="fa-solid fa-triangle-exclamation"></i>No data for this month</div>}
                     {(dropdownVal == "Expense Overview" || dropdownVal == "Income Overview") ? <h1 className='text-center text-xs m-2 uppercase text-gray-600 font-bold'>scroll to see records <i className="fa-solid fa-angles-down"></i></h1> :<h1 className='text-center text-xs m-2 uppercase text-gray-600 font-bold'>scroll to see calendar <i className="fa-solid fa-angles-down"></i></h1>}
                 </div>
+                {(dropdownVal == "Expense Flow" || dropdownVal == "Income Flow")?
+                <div className="mt-1 flex p-2 justify-center">
+                    <Calendar 
+                        activeStartDate={new Date(year, month, 1)}
+                        tileDisabled={()=>{return true}}
+                        tileContent={({date}) => {
+                            const formattedDate = date.toISOString().split("T")[0];
+                            
+                            return recordsByDay[1*formattedDate.slice(-2) + 1] ? (
+                                <div className={dropdownVal.startsWith("Expense") ? "text-red-600 break-all text-ellipsis text-sm font-semibold flex pr-3 items-end justify-end w-full h-full text-black" : "text-green-600 break-all text-ellipsis text-sm font-semibold flex pr-3 items-end justify-end w-full h-full text-black"}>{dropdownVal.startsWith("Expense")?"-":""}{formatToIndianNotation(recordsByDay[1*formattedDate.slice(-2) + 1])}</div>
+                            ) : null;
+                        }}
+                        showNeighboringMonth={false}
+                    />
+                </div> :
                 <div>
                 {!organisedRecords[mandy] ? "" :
                     Object.keys(recordsByCategory).map((header,idx)=>{
@@ -295,12 +316,9 @@ export default function ExpenseReport(props) {
                         })}</div>
                     }) 
                 }
-                </div>
+                </div>}
             </div>
             
-            {/* <button className='cursor-pointer flex justify-center items-center text-white h-[45px] w-[45px] z-10 p-2 bg-blue-400 rounded-[50%] absolute bottom-[15px] right-[15px]' onClick={(e)=>{console.log("Unpurposed button")}}>
-                <i className="text-lg fa-solid fa-plus"></i>
-            </button> */}
         </div>
         <div className={popup ? 'opacity-25 bg-black absolute top-0 left-0 fixed w-[100vw] h-[100vh]':'hidden'} onClick={(e)=>{setShowNote(false);setPopup(false)}}></div>
         <div className={popup ? "fixed top-1/2 left-1/2 translate-x-[-50%] backdrop-blur shadow-md translate-y-[-50%] rounded-lg bg-slate-400 h-[300px] w-[300px]" : "hidden"}>
