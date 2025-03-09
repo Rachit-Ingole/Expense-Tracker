@@ -1,0 +1,8 @@
+.custom-progress {
+    margin-top: 4px;
+    height: 15px;
+    border-radius: 10px;
+    overflow: hidden; /* Ensures rounded corners are applied */
+    background-color: #e0e0e0; 
+    border: none;
+}

@@ -1,4 +1,6 @@
 import React, { useReducer, useState } from 'react'
+import './BudgetCard.css'
+
 
 export const c_icons = {
     "Food": <i className="fa-solid fa-utensils mr-[5px]"></i>,
@@ -31,16 +33,21 @@ export const c_icons = {
 //{category:"",budget:"",month:"",email_address:""}
 
 export default function BudgetCard(props) {
-    const {value,category,handleSetBudget} = props
+    const {value,category,spent,handleSetBudget} = props
     
   return value ?  (
     
-    <div className='flex min-h-[55px] mx-[10px] p-1 bg-slate-300 rounded-lg my-[2px] cursor-pointer' onClick={()=>{handlePopUp(value)}}>
-        <div className='text-2xl flex justify-center items-center w-[40px] text-center'>
+    <div className='flex mx-[10px] p-1 bg-slate-300 rounded-lg my-[2px] cursor-pointer' onClick={()=>{handlePopUp(value)}}>
+        <div className='text-3xl ml-[5px] mr-[10px] flex justify-center mt-[4px] w-[40px] text-center'>
             {c_icons[value.category]}    
         </div>
-        <div>
-            helo
+        <div className='flex flex-col w-full mr-[20px]'>
+            <h1 className='text-md'>{value.category}</h1> 
+            <h1 className='text-sm'>Limit: ₹{value.budget}</h1>
+            <h1 className='text-sm'>Spent: <span className='text-red-400 font-semibold'>₹{spent}</span></h1>
+            <h1 className='text-sm'>Remaining: <span className='text-red-400 font-semibold'>₹{0  > value.budget-spent ? 0 : value.budget-spent}</span></h1>
+            <progress className={spent/value.budget > 0.8 ? 'mb-2 custom-progress w-full md:w-[75%] rounded-lg [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-value]:bg-red-400 [&::-moz-progress-bar]:bg-red-400' : 'mb-2 custom-progress w-full md:w-[75%] rounded-lg [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-value]:bg-green-600 [&::-moz-progress-bar]:bg-green-600'} value={spent} max={value.budget}></progress>
+           
         </div>
     </div>
   ) : (

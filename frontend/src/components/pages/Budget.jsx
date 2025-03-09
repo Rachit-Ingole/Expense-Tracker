@@ -80,10 +80,11 @@ export default function Budget(props) {
         let newChartData = {};
         let newRecordsByCategory = {};
         
-        
+        let mandy = `${(year)?.toString().padStart(4,"0")}-${(month+1)?.toString().padStart(2,"0")}`
         if(!organisedRecords[mandy]){
             return
         }
+
         Object.keys(organisedRecords[mandy]).map((monthdate,idx)=>{
             organisedRecords[mandy][monthdate].map((value,index)=>{
                 if(value.recordType == "income"){
@@ -102,7 +103,7 @@ export default function Budget(props) {
         setExpenseByCategory(newRecordsByCategory)
         setTotalExpenseByCategory(newChartData)
         
-    },[month,organisedRecords])
+    },[month,organisedRecords,budgets])
 
 
     function handleCreateBudget(){
@@ -162,7 +163,15 @@ export default function Budget(props) {
                     <h1 className='border-b-1 text-sm font-semibold mr-[50%]'>Budgets this Month</h1>
                     <div className=''>
                         {budgets[mandy] && Object.keys(budgets[mandy]).map((value,idx)=>{
-                            return <BudgetCard value={budgets[mandy][value]} handleSetBudget={handleSetBudget} key={idx}/>
+                            let spent;
+                            console.log(totalExpenseByCategory)
+                            console.log(expenseByCategory)
+                            if(totalExpenseByCategory[budgets[mandy][value].category]){
+                                spent = totalExpenseByCategory[budgets[mandy][value].category];
+                            }else{
+                                spent = 0
+                            }
+                            return <BudgetCard value={budgets[mandy][value]} spent={spent} handleSetBudget={handleSetBudget} key={idx}/>
                         })}
                     </div>
                     
