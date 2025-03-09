@@ -55,8 +55,7 @@ export default function Tracker(props) {
         setTime(`${`${new Date().getHours()}`.padStart(2,"0")}:${`${new Date().getMinutes()}`.padStart(2,"0")}`);
         setExpenseMonth(`${`${new Date().getFullYear()}`.padStart(4,"0")}-${`${new Date().getMonth()+1}`.padStart(2,"0")}-${`${new Date().getDate()}`.padStart(2,"0")}`)
     }
-    
-    
+
         
     function handleSave(e){
         if(category == null){
@@ -70,7 +69,7 @@ export default function Tracker(props) {
         async function create_record() {
             try{
               const API_URL = `${api_url}/createrecord`
-              const {data:actualData}  = await axios.post(API_URL,{"recordType":dataType,"category":category,"note":note,"email_address":data["email_address"],"amount":Number(amount).toString(),"time":time,"date":expenseMonth})
+              const {data:actualData}  = await axios.post(API_URL,{"recordType":dataType,"category":category,"note":note,"email_address":data["email_address"],"amount":Number(amount).toString(),"time":time,"date":expenseMonth,"password":data["password"]})
               console.log(actualData)
               getAllRecords()
             }catch(err){

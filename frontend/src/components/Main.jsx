@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Navbar from './Navbar';
 import Tracker from './pages/Tracker';
-import CExchange from './pages/CExchange';
+import CurrencyExchange from './pages/CurrencyExchange';
 import EmailReminder from './pages/EmailReminder';
 import ExpenseReport from './pages/ExpenseReport';
 import { api_url } from '../utils/variables';
 import { organizeDataByMonthAndDate } from '../utils/functions';
+import Budget from './pages/Budget';
 
 export default function Main(props) {
     const {data, setData} = props;
@@ -116,9 +117,10 @@ export default function Main(props) {
         <Navbar data={data} setData={setData}/>
         <Routes>
           <Route path='/' exact element={<Tracker showNote={showNote} setShowNote={setShowNote} popup={popup} setPopup={setPopup} popupVal={popupVal} handlePopUp={handlePopUp} updateMonth={updateMonth} changeMonth={changeMonth} deleteRecord={deleteRecord} getAllRecords={getAllRecords} data={data} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar}/>} />
-          <Route path='/ea' element={<ExpenseReport showNote={showNote} setShowNote={setShowNote} popup={popup} setPopup={setPopup} popupVal={popupVal} handlePopUp={handlePopUp} updateMonth={updateMonth} changeMonth={changeMonth} deleteRecord={deleteRecord} getAllRecords={getAllRecords} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar} />}/>
-          <Route path='/ce' element={<CExchange/>} />
-          <Route path='/er' element={<EmailReminder/>} />
+          <Route path='/expense-analysis' element={<ExpenseReport showNote={showNote} setShowNote={setShowNote} popup={popup} setPopup={setPopup} popupVal={popupVal} handlePopUp={handlePopUp} updateMonth={updateMonth} changeMonth={changeMonth} deleteRecord={deleteRecord} getAllRecords={getAllRecords} organisedRecords={organisedRecords} setMonth={setMonth} setYear={setYear} month={month} year={year} topbar={topbar} />}/>
+          <Route path='/budgets' element={<Budget organisedRecords={organisedRecords} getAllRecords={getAllRecords} data={data} month={month} updateMonth={updateMonth} changeMonth={changeMonth} year={year}/>} />
+          <Route path='/currency-exchange' element={<CurrencyExchange/>} />
+          <Route path='/email-reminder' element={<EmailReminder/>} />
         </Routes>
     </Router>
     

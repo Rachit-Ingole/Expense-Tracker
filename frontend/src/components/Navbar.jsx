@@ -12,19 +12,25 @@ const SidebarData = [
   },
   {
     title: 'Expense Report',
-    path: '/ea',
+    path: '/expense-analysis',
     icon: <i className="fa-solid fa-chart-simple"></i>,
     cName: 'nav-text'
   },
   {
+    title: 'Budgets',
+    path:'/budgets',
+    icon: <i className="fa-solid fa-calculator"></i>,
+    cName: 'nav-text'
+  },
+  {
     title: 'Currency Exchange',
-    path: '/ce',
+    path: '/currency-exchange',
     icon: <i className="fa-solid fa-coins"></i>,
     cName: 'nav-text'
   },
   {
     title: 'Email Reminder',
-    path: '/er',
+    path: '/email-reminder',
     icon: <i className="fa-solid fa-clock"></i>,
     cName: 'nav-text'
   },

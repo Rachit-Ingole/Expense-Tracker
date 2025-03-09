@@ -7,13 +7,13 @@ from email.mime.text import MIMEText
 from typing import List
 
 from dotenv import load_dotenv
-from models import User,Record # import the user model defined by 
+from models import User,Record,Budget,RecordWithPassword,BudgetWithPassword 
 from fastapi import FastAPI, HTTPException, Body, File, UploadFile, Form, BackgroundTasks
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel  # Most widely used data validation library for python
+from pydantic import BaseModel
 
-from OCR import scan  # imports user defined scan func for reading bills
-from models import User  # import the user model defined by us
+from OCR import scan 
+from models import User
 
 load_dotenv()
 
@@ -57,14 +57,13 @@ app.add_middleware(
 
 
 @app.get("/")
-async def read_root():  # function that is binded with the endpoint
+async def read_root(): 
     return {"Hello": "World"}
 
 
 class loginInfo(BaseModel):
     email_address: str
     password: str
-
 
 @app.post("/api/v1/auth/login", response_model=User)
 async def login_user(userInfo: loginInfo = Body(...)):
@@ -88,19 +87,50 @@ async def register_user(user: User):
 
 
 @app.post("/api/v1/createrecord",response_model=Record)
-async def create_record(record: Record):
-    result = await app.mongodb["record"].insert_one(record.dict())
+async def create_record(record: RecordWithPassword):
+    record = record.dict()
+    user = await app.mongodb["users"].find_one({"email_address": record['email_address']})
+    
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user["password"] != record['password']:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
+    
+    record.pop("password",None)
+
+    result = await app.mongodb["record"].insert_one(record)
     inserted_record = await app.mongodb["record"].find_one({"_id": result.inserted_id})
     return inserted_record
 
+@app.post("/api/v1/createbudget",response_model=Budget)
+async def create_budget(budget: BudgetWithPassword):
+    budget = budget.dict()
+    user = await app.mongodb["users"].find_one({"email_address": budget["email_address"]})
+    
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user["password"] != budget['password']:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
 
-class EmailInput(BaseModel):
-    email_address:str
-    password:str
+    budget.pop("password",None)
 
+    result = await app.mongodb["budget"].insert_one(budget)
+    inserted_budget = await app.mongodb["budget"].find_one({"_id": result.inserted_id})
+    return inserted_budget
+
+@app.post("/api/v1/getbudgets",response_model=List[Budget])
+async def get_all_budgets(email: loginInfo):
+    user = await app.mongodb["users"].find_one({"email_address": email.email_address})
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user["password"] != email.password:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
+
+    budgets = await app.mongodb["budget"].find({"email_address": email.email_address}).to_list(None)
+    return budgets
 
 @app.post("/api/v1/getrecords",response_model=List[Record])
-async def get_all_records(email: EmailInput):
+async def get_all_records(email: loginInfo):
     user = await app.mongodb["users"].find_one({"email_address": email.email_address})
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -110,43 +140,47 @@ async def get_all_records(email: EmailInput):
     records = await app.mongodb["record"].find({"email_address": email.email_address}).to_list(None)
     return records
 
-class RecordAuth(BaseModel):
-    recordType: str
-    category: str
-    note: str
-    email_address: str
-    password: str
-    amount: str
-    time: str
-    date: str
+@app.delete("/api/v1/deletebudget") 
+async def delete_budget(budget: BudgetWithPassword = Body(...)):
+    user = await app.mongodb["users"].find_one({"email_address": record.email_address})
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user["password"] != budget.password:
+        raise HTTPException(status_code=404, detail="username/password incorrect")
+
+    budget = budget.dict()
+    budget.pop('password',None)
+
+    deleted_result = await app.mongodb["budget"].delete_one(budget)
+    if deleted_result.deleted_count == 1:
+        return {"message": "Record deleted successfully"}
+    else:
+        return {"message": "Record not found"}
 
 @app.delete("/api/v1/deleterecord") 
-async def delete_record(record: RecordAuth = Body(...)):
+async def delete_record(record: RecordWithPassword = Body(...)):
     user = await app.mongodb["users"].find_one({"email_address": record.email_address})
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     if user["password"] != record.password:
         raise HTTPException(status_code=404, detail="username/password incorrect")
 
-    record_dict = record.dict()
-    del record_dict['password']
+    record = record.dict()
+    record.pop('password',None)
 
-    deleted_result = await app.mongodb["record"].delete_one(record_dict)
+    deleted_result = await app.mongodb["record"].delete_one(record)
     if deleted_result.deleted_count == 1:
         return {"message": "Record deleted successfully"}
     else:
         return {"message": "Record not found"}
 
-# C <=== Create
+
 @app.post("/api/v1/create-user", response_model=User)
 async def insert_user(user: User):
     result = await app.mongodb["users"].insert_one(user.dict())
     inserted_user = await app.mongodb["users"].find_one({"_id": result.inserted_id})
     return inserted_user
 
-
-# R <=== Read
-# Read all users
 @app.get("/api/v1/read-all-users", response_model=List[User])
 async def read_users():
     users = await app.mongodb["users"].find().to_list(None)

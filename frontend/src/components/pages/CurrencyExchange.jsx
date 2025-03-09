@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function CExchange(){
+export default function CurrencyExchange(){
   const [rates, setRates] = useState({});
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [toCurrency, setToCurrency] = useState('EUR');
