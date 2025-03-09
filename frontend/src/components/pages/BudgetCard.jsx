@@ -32,19 +32,13 @@ export const c_icons = {
 
 export default function BudgetCard(props) {
     const {value,category,handleSetBudget} = props
-
+    
   return value ?  (
     
     <div className='flex min-h-[55px] mx-[10px] p-1 bg-slate-300 rounded-lg my-[2px] cursor-pointer' onClick={()=>{handlePopUp(value)}}>
         <div className='text-2xl flex justify-center items-center w-[40px] text-center'>
-            {c_icons[value["category"]]}
+            {c_icons[value.category]}    
         </div>
-        {/* <div className='ml-[2px]'>
-            {analysis ? `${value["date"].slice(-2)} ${m_names[(1*value["date"].slice(5,7))-1].slice(0,3)}  ${convertTo12HourFormat(value["time"]).toLowerCase()}`: value["category"]}
-        </div>
-        <div className={value["recordType"]=="income"?' align-middle pr-[20px] font-semibold ml-auto text-green-600':'pr-[20px] font-semibold ml-auto text-red-400 align-middle'}>
-            {value["recordType"]=="expense"?"-":""}₹{Number(value["amount"]).toFixed(2)}
-        </div> */}
         <div>
             helo
         </div>

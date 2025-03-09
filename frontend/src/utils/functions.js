@@ -67,3 +67,34 @@ export function organizeDataByMonthAndDate(data) {
   
     return result;
 }
+
+export function groupByYearMonth(data) {
+  if (!Array.isArray(data)) {
+      console.error("Expected an array but got:", data);
+      return {}; 
+  }
+  return data.reduce((acc, record) => {
+      const key = `${record.year}-${String(record.month).padStart(2, "0")}`; 
+      if (!acc[key]) {
+          acc[key] = [];
+      }
+      acc[key].push(record);
+      return acc;
+  }, {});
+}
+
+export function getUniqueCategories(data) {
+  if (!Array.isArray(data)) {
+      console.error("Expected an array but got:", data);
+      return [];
+  }
+
+  const categories = new Set(); 
+  data.forEach(record => {
+      if (record.category) {
+          categories.add(record.category);
+      }
+  });
+
+  return Array.from(categories); 
+}

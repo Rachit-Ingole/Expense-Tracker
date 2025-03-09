@@ -23,6 +23,7 @@ class Budget(BaseModel):
     category: str
     budget: str
     month: str
+    year:str
     email_address: str
 
 class BudgetWithPassword(Budget):

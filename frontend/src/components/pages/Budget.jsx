@@ -1,6 +1,8 @@
 import React, { use, useEffect, useState } from 'react'
 import { m_names,api_url } from '../../utils/variables';
+import { groupByYearMonth,getUniqueCategories } from '../../utils/functions';
 import BudgetCard from './BudgetCard';
+
 
 const categories = [
     "Food", "Beauty", "Bills", "Car", "Clothing", "Education", "Electronics", 
@@ -42,15 +44,35 @@ export default function Budget(props) {
     const [topbar,setTopbar] = useState({budget:0,spent:0})
 
     const [expenseByCategory,setExpenseByCategory] = useState({})
+    const [budgets,setBudgets] = useState({})
     const [totalExpenseByCategory,setTotalExpenseByCategory] = useState({})
+    const [existingCategories,setExistingCategories] = useState([])
 
     const [budgetPopup,setBudgetPopup] = useState(false)
     const [popupData,setPopupData] = useState({})
     const [popupLimit,setPopupLimit] = useState(0)
     const [error,setError] = useState("")
+    let mandy = `${(year)?.toString().padStart(4,"0")}-${(month)?.toString().padStart(2,"0")}`
+    
+
+    async function getAllBudgets(){
+            try{
+                const API_URL = `${api_url}/getbudgets`
+                const {data:actualData}  = await axios.post(API_URL,{"email_address":data["email_address"],"password":data["password"]})
+                console.log(actualData)
+                let newBuds = groupByYearMonth(actualData)
+                setBudgets(newBuds)
+                setExistingCategories(getUniqueCategories(newBuds[mandy]))
+                
+            }catch(err){
+                console.log(err)
+                console.log("error in fetching budgets")
+            }
+    }
 
     useEffect(()=>{   
         getAllRecords()
+        getAllBudgets()
     },[])
     
     
@@ -58,7 +80,7 @@ export default function Budget(props) {
         let newChartData = {};
         let newRecordsByCategory = {};
         
-        let mandy = `${(year)?.toString().padStart(4,"0")}-${(month+1)?.toString().padStart(2,"0")}`
+        
         if(!organisedRecords[mandy]){
             return
         }
@@ -84,7 +106,7 @@ export default function Budget(props) {
 
 
     function handleCreateBudget(){
-        if(popupLimit == 0){
+        if(popupLimit == 0 || popupLimit == null){
             setError("Not a valid limit")
             return
         }
@@ -92,7 +114,7 @@ export default function Budget(props) {
             try{
                 console.log("here")
                 const API_URL = `${api_url}/createbudget`
-                const {data:actualData}  = await axios.post(API_URL,{"category":popupData.category,"budget":popupLimit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString()})
+                const {data:actualData}  = await axios.post(API_URL,{"category":popupData.category,"budget":popupLimit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString(),"year":year.toString()})
                 console.log(actualData)
 
             }catch(err){
@@ -106,6 +128,7 @@ export default function Budget(props) {
         setPopupData({})
         setPopupLimit(0)
         setBudgetPopup(false)
+        getAllBudgets()
 
     } 
 
@@ -136,18 +159,20 @@ export default function Budget(props) {
                 </div>
                 <div className='flex flex-col mt-[10px] max-h-[75%] overflow-y-auto'>
                     {/* existing budgets */}
-                    {/* <h1 className='border-b-1 text-sm font-semibold mr-[50%]'>Budgets this Month</h1>
+                    <h1 className='border-b-1 text-sm font-semibold mr-[50%]'>Budgets this Month</h1>
                     <div className=''>
-                        {categories.map((category,idx)=>{
-
-                            return <BudgetCard category={category} handleSetBudget={handleSetBudget} key={idx}/>
+                        {budgets[mandy] && Object.keys(budgets[mandy]).map((value,idx)=>{
+                            return <BudgetCard value={budgets[mandy][value]} handleSetBudget={handleSetBudget} key={idx}/>
                         })}
-                    </div> */}
+                    </div>
+                    
 
                     <h1 className='border-b-1 text-sm font-semibold mr-[50%]'>Not Budgeted</h1>
                     <div className=''>
                         {categories.map((category,idx)=>{
-                            return <BudgetCard category={category} handleSetBudget={handleSetBudget} key={idx}/>
+                            if(!existingCategories.includes(category)){
+                                return <BudgetCard category={category} handleSetBudget={handleSetBudget} key={idx}/>
+                            }
                         })}
                     </div>
                 </div>
