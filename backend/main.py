@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 from typing import List
 
 from dotenv import load_dotenv
-from models import User,Record,Budget,RecordWithPassword,BudgetWithPassword 
+from models import User,Record,Budget,RecordWithPassword,BudgetWithPassword, UserWithNewPassword, UserWithNewUsername, loginInfo
 from fastapi import FastAPI, HTTPException, Body, File, UploadFile, Form, BackgroundTasks
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
@@ -60,11 +60,6 @@ app.add_middleware(
 async def read_root(): 
     return {"Hello": "World"}
 
-
-class loginInfo(BaseModel):
-    email_address: str
-    password: str
-
 @app.post("/api/v1/auth/login", response_model=User)
 async def login_user(userInfo: loginInfo = Body(...)):
     user = await app.mongodb["users"].find_one({"email_address": userInfo.email_address})
@@ -75,20 +70,28 @@ async def login_user(userInfo: loginInfo = Body(...)):
     else:
         raise HTTPException(status_code=404, detail="username/password incorrect")
 
-
 @app.post("/api/v1/auth/register", response_model=User)
 async def register_user(user: User):
-    exists = await app.mongodb["users"].find_one({"email_address": user.email_address})
-    if exists:
-        raise HTTPException(status_code=404, detail="email already exists")
-    result = await app.mongodb["users"].insert_one(user.dict())
-    inserted_user = await app.mongodb["users"].find_one({"_id": result.inserted_id})
-    return inserted_user
-
+    email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    if(re.match(email_regex, email)):
+        exists = await app.mongodb["users"].find_one({"email_address": user.email_address})
+        if exists:
+            raise HTTPException(status_code=404, detail="email already exists")
+        result = await app.mongodb["users"].insert_one(user.dict())
+        inserted_user = await app.mongodb["users"].find_one({"_id": result.inserted_id})
+        return inserted_user
+    else:
+        raise HTTPException(status_code=404, detail="Email is invalid")
 
 @app.post("/api/v1/createrecord",response_model=Record)
 async def create_record(record: RecordWithPassword):
     record = record.dict()
+    try:
+        if float(record["amount"]) <= 0:
+            return {"not valid input"}
+    except e:
+        raise HTTPException(status_code=400,detail="Amount must be positive number")
+
     user = await app.mongodb["users"].find_one({"email_address": record['email_address']})
     
     if user is None:
@@ -106,7 +109,7 @@ async def create_record(record: RecordWithPassword):
 async def create_budget(budget: BudgetWithPassword):
     budget = budget.dict()
     try:
-        if int(budget["budget"]) <= 0:
+        if float(budget["budget"]) <= 0:
             return {"not valid input"}
     except e:
         return {e}
@@ -117,7 +120,7 @@ async def create_budget(budget: BudgetWithPassword):
         raise HTTPException(status_code=404, detail="User not found")
     if user["password"] != budget['password']:
         raise HTTPException(status_code=404, detail="username/password incorrect")
-    print(budget)
+
     exists = await app.mongodb["budget"].find_one({"email_address":budget["email_address"],"month":budget["month"],"year":budget["year"],"category":budget["category"]})
 
     if(exists != None):
@@ -187,24 +190,6 @@ async def delete_record(record: RecordWithPassword = Body(...)):
     else:
         return {"message": "Record not found"}
 
-
-@app.post("/api/v1/create-user", response_model=User)
-async def insert_user(user: User):
-    result = await app.mongodb["users"].insert_one(user.dict())
-    inserted_user = await app.mongodb["users"].find_one({"_id": result.inserted_id})
-    return inserted_user
-
-@app.get("/api/v1/read-all-users", response_model=List[User])
-async def read_users():
-    users = await app.mongodb["users"].find().to_list(None)
-    return users
-
-class UserWithNewPassword(BaseModel):
-    username: str
-    email_address: str
-    password: str
-    newPassword: str
-
 @app.patch("/api/v1/changepassword",response_model=User)
 async def change_password(user: UserWithNewPassword):
     user = user.dict()
@@ -219,13 +204,6 @@ async def change_password(user: UserWithNewPassword):
     newUser["password"] = user["newPassword"]
     return newUser
 
-
-class UserWithNewUsername(BaseModel):
-    username: str
-    email_address: str
-    password: str
-    newUsername: str
-
 @app.patch("/api/v1/changeusername",response_model=User)
 async def change_password(user: UserWithNewUsername):
     user = user.dict()
@@ -239,16 +217,6 @@ async def change_password(user: UserWithNewUsername):
 
     newUser["username"] = user["newUsername"]
     return newUser
-
-# Read one user by email_address
-@app.get("/api/v1/read-user/{email_address}", response_model=User)
-async def read_user_by_email(email_address: str):
-    user = await app.mongodb["users"].find_one({"email_address": email_address})
-
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
-
 
 # ocr
 from pathlib import Path
