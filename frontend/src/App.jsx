@@ -3,7 +3,7 @@ import Auth from './components/Auth'
 import Main from './components/Main'
 
 function App() {
-    const [data, setData] = useState({username: 'Rachit', email_address: 'r@sexy.com', password: 'rachit'})
+    const [data, setData] = useState({})
     return (
         data ?
             <Main data={data} setData={setData}/>
