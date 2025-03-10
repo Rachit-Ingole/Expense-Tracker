@@ -59,7 +59,6 @@ export default function Budget(props) {
             try{
                 const API_URL = `${api_url}/getbudgets`
                 const {data:actualData}  = await axios.post(API_URL,{"email_address":data["email_address"],"password":data["password"]})
-                console.log(actualData)
                 let newBuds = groupByYearMonth(actualData)
                 setBudgets(newBuds)
                 setExistingCategories(getUniqueCategories(newBuds[mandy]))
@@ -102,9 +101,26 @@ export default function Budget(props) {
 
         setExpenseByCategory(newRecordsByCategory)
         setTotalExpenseByCategory(newChartData)
+        mandy = `${(year)?.toString().padStart(4,"0")}-${(month)?.toString().padStart(2,"0")}`
+
+        let totalSpent = 0;
+        let totalBudget = 0;
+        if(!budgets[mandy]){
+            setTopbar({budget:0,spent:0})
+            return
+        }
+        Object.keys(budgets[mandy]).map((value,idx)=>{
+            totalBudget += 1 * budgets[mandy][value].budget
+            if(newChartData[budgets[mandy][value].category]){
+                totalSpent += 1 * newChartData[budgets[mandy][value].category];
+            }
+        })
+        setTopbar({budget:totalBudget,spent:totalSpent})
+
         
     },[month,organisedRecords,budgets])
 
+    
 
     function handleCreateBudget(){
         if(popupData.limit == 0 || popupData.limit == null){
@@ -113,10 +129,8 @@ export default function Budget(props) {
         }
         async function create_budget() {
             try{
-                console.log("here")
                 const API_URL = `${api_url}/createbudget`
                 const {data:actualData}  = await axios.post(API_URL,{"category":popupData.category,"budget":popupData.limit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString(),"year":year.toString()})
-                console.log(actualData)
                 getAllBudgets()
 
             }catch(err){
@@ -155,7 +169,6 @@ export default function Budget(props) {
     }
 
     async function deleteBudget(value){
-        console.log("hello")
         try{
             const API_URL = `${api_url}/deletebudget`
             let newVal = {"category":value.category,"budget":value.budget,"month":month.toString(),"year":year.toString(),"email_address":value.email_address,"password":data.password}
