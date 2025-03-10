@@ -49,8 +49,8 @@ export default function Budget(props) {
     const [existingCategories,setExistingCategories] = useState([])
 
     const [budgetPopup,setBudgetPopup] = useState(false)
-    const [popupData,setPopupData] = useState({})
-    const [popupLimit,setPopupLimit] = useState(0)
+    const [popupData,setPopupData] = useState({limit:0,category:null})
+    
     const [error,setError] = useState("")
     let mandy = `${(year)?.toString().padStart(4,"0")}-${(month)?.toString().padStart(2,"0")}`
     
@@ -107,7 +107,7 @@ export default function Budget(props) {
 
 
     function handleCreateBudget(){
-        if(popupLimit == 0 || popupLimit == null){
+        if(popupData.limit == 0 || popupData.limit == null){
             setError("Not a valid limit")
             return
         }
@@ -115,8 +115,9 @@ export default function Budget(props) {
             try{
                 console.log("here")
                 const API_URL = `${api_url}/createbudget`
-                const {data:actualData}  = await axios.post(API_URL,{"category":popupData.category,"budget":popupLimit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString(),"year":year.toString()})
+                const {data:actualData}  = await axios.post(API_URL,{"category":popupData.category,"budget":popupData.limit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString(),"year":year.toString()})
                 console.log(actualData)
+                getAllBudgets()
 
             }catch(err){
                 console.log(err )
@@ -126,26 +127,51 @@ export default function Budget(props) {
         
         create_budget()
         setError("")
-        setPopupData({})
-        setPopupLimit(0)
+        setPopupData({limit:0,category:null})
         setBudgetPopup(false)
-        getAllBudgets()
+        
 
     } 
 
     function handleSetBudget(category,value){
         if(!value){
-            setPopupData({category:category})
+            setPopupData({category:category,limit:0})
             setBudgetPopup(true)
+            return
+        }
+        
+        setPopupData({category:category,limit:value.budget})
+        setBudgetPopup(true)
 
+    }
+
+    const [showEdit,setShowEdit] = useState(null)
+    function handleEdit(category){
+        if(showEdit == category){
+            setShowEdit(null)
+            return
+        }
+        setShowEdit(category)
+    }
+
+    async function deleteBudget(value){
+        console.log("hello")
+        try{
+            const API_URL = `${api_url}/deletebudget`
+            let newVal = {"category":value.category,"budget":value.budget,"month":month.toString(),"year":year.toString(),"email_address":value.email_address,"password":data.password}
+            await axios.delete(API_URL,{data:newVal})
+            getAllBudgets()
+        }catch(err){
+            console.log(err)
+            console.log("error in deleting budget")
         }
     }
 
     return (
         <>
         <div className='md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] h-[80vh] bg-slate-200 rounded-xl m-auto' >
-            <div className='w-full relative h-full'>
-                <div className='flex justify-center border-b-1 pb-[2px] items-center gap-[10px] text-lg' ><i onClick={(e)=>updateMonth(-1)} className="fa-solid cursor-pointer fa-arrow-left"></i><span className='w-[150px] text-center'>{m_names[month]}, {year}</span> <i onClick={(e)=>updateMonth(1)} className="fa-solid cursor-pointer fa-arrow-right"></i> <input onChange={(e)=>changeMonth(e)} className=' outline-none w-[20px]' type="month" id="start" name="start" min="2018-03"/>
+            <div className='w-full relative h-full' >
+                <div onTouchStart={()=>{setShowEdit(null)}} onMouseDown={()=>{setShowEdit(null)}} className='z-60 flex justify-center border-b-1 pb-[2px] items-center gap-[10px] text-lg' ><i onClick={(e)=>updateMonth(-1)} className="fa-solid cursor-pointer fa-arrow-left"></i><span className='w-[150px] text-center'>{m_names[month]}, {year}</span> <i onClick={(e)=>updateMonth(1)} className="fa-solid cursor-pointer fa-arrow-right"></i> <input onChange={(e)=>changeMonth(e)} className=' outline-none w-[20px]' type="month" id="start" name="start" min="2018-03"/>
                 </div>
                 
                 <div className='flex justify-evenly text-sm border-b-1'>
@@ -158,26 +184,25 @@ export default function Budget(props) {
                         <h4 className='text-red-400 font-bold'> ₹{topbar.spent}</h4>
                     </div>
                 </div>
-                <div className='flex flex-col mt-[10px] max-h-[75%] overflow-y-auto'>
+                <div className='flex flex-col mt-[10px] max-h-[75%] overflow-y-auto' >
                     {/* existing budgets */}
                     <h1 className='border-b-1 text-sm font-semibold mr-[50%]'>Budgets this Month</h1>
-                    <div className=''>
+                    <div className='relative'>
                         {budgets[mandy] && Object.keys(budgets[mandy]).map((value,idx)=>{
                             let spent;
-                            console.log(totalExpenseByCategory)
-                            console.log(expenseByCategory)
                             if(totalExpenseByCategory[budgets[mandy][value].category]){
                                 spent = totalExpenseByCategory[budgets[mandy][value].category];
                             }else{
                                 spent = 0
                             }
-                            return <BudgetCard value={budgets[mandy][value]} spent={spent} handleSetBudget={handleSetBudget} key={idx}/>
+
+                            return <BudgetCard value={budgets[mandy][value]} handleEdit={handleEdit} showEdit={budgets[mandy][value].category == showEdit} setShowEdit={setShowEdit} deleteBudget={deleteBudget} spent={spent} handleSetBudget={handleSetBudget} key={idx}/>
                         })}
                     </div>
                     
 
-                    <h1 className='border-b-1 text-sm font-semibold mr-[50%]'>Not Budgeted</h1>
-                    <div className=''>
+                    <h1 className='border-b-1 text-sm font-semibold mr-[50%]' >Not Budgeted</h1>
+                    <div className='' onTouchStart={()=>{setShowEdit(null)}} onMouseDown={()=>{setShowEdit(null)}}>
                         {categories.map((category,idx)=>{
                             if(!existingCategories.includes(category)){
                                 return <BudgetCard category={category} handleSetBudget={handleSetBudget} key={idx}/>
@@ -207,7 +232,8 @@ export default function Budget(props) {
                 <div className='text-lg'>
                     Limit
                 </div>
-                <input value={popupLimit} placeholder='0' onChange={(e)=>{if((!e.target.value || parseFloat(e.target.value) == e.target.value)){setPopupLimit(e.target.value)}}} className='border-1 ml-[10px] rounded-md p-1 focus:outline-blue-500'>
+                
+                <input value={popupData.limit} placeholder='0' onChange={(e)=>{if((!e.target.value || parseFloat(e.target.value) == e.target.value)){setPopupData({...popupData,limit:e.target.value})}}} className='border-1 ml-[10px] rounded-md p-1 focus:outline-blue-500'>
                     
                 </input>
                 

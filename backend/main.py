@@ -105,12 +105,25 @@ async def create_record(record: RecordWithPassword):
 @app.post("/api/v1/createbudget",response_model=Budget)
 async def create_budget(budget: BudgetWithPassword):
     budget = budget.dict()
+    try:
+        if int(budget["budget"]) <= 0:
+            return {"not valid input"}
+    except e:
+        return {e}
+    
     user = await app.mongodb["users"].find_one({"email_address": budget["email_address"]})
     
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     if user["password"] != budget['password']:
         raise HTTPException(status_code=404, detail="username/password incorrect")
+    print(budget)
+    exists = await app.mongodb["budget"].find_one({"email_address":budget["email_address"],"month":budget["month"],"year":budget["year"],"category":budget["category"]})
+
+    if(exists != None):
+        newBudget = await app.mongodb["budget"].find_one_and_update({"email_address":budget["email_address"],"month":budget["month"],"year":budget["year"],"category":budget["category"]}, {"$set": {"budget":budget["budget"]}})
+        return newBudget
+    
 
     budget.pop("password",None)
 
@@ -142,7 +155,7 @@ async def get_all_records(email: loginInfo):
 
 @app.delete("/api/v1/deletebudget") 
 async def delete_budget(budget: BudgetWithPassword = Body(...)):
-    user = await app.mongodb["users"].find_one({"email_address": record.email_address})
+    user = await app.mongodb["users"].find_one({"email_address": budget.email_address})
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     if user["password"] != budget.password:
