@@ -34,7 +34,7 @@ export const c_icons = {
 //{category:"",budget:"",month:"",email_address:""}
 
 export default function BudgetCard(props) {
-    const {value,category,spent,handleSetBudget,deleteBudget,handleEdit,setShowEdit,showEdit} = props
+    const {value,category,spent,handleSetBudget,handleShowRecords,deleteBudget,handleEdit,setShowEdit,showEdit} = props
     const [showDeletePopup,setShowDeletePopup] = useState(false)
     
 
@@ -44,7 +44,7 @@ export default function BudgetCard(props) {
         <div className='text-3xl ml-[5px] mr-[10px] flex justify-center mt-[4px] w-[40px] text-center'>
             {c_icons[value.category]}    
         </div>
-        <div className='flex flex-col w-full mr-[20px]'>
+        <div className='flex flex-col w-full mr-[20px] cursor-pointer' onClick={()=>{setShowEdit(false);handleShowRecords(value,spent)}}>
             <h1 className='text-md'>{value.category}</h1> 
             <h1 className='text-sm'>Limit: ₹{value.budget}</h1>
             <h1 className='text-sm'>Spent: <span className={spent/value.budget > 0.8 ? 'text-red-400 font-semibold' :'text-green-600 font-semibold'}>₹{spent}</span></h1>
@@ -52,9 +52,9 @@ export default function BudgetCard(props) {
             <progress className={spent/value.budget > 0.8 ? 'mb-2 custom-progress w-full md:w-[75%] rounded-lg [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-value]:bg-red-400 [&::-moz-progress-bar]:bg-red-400' : 'mb-2 custom-progress w-full md:w-[75%] rounded-lg [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-value]:bg-green-600 [&::-moz-progress-bar]:bg-green-600'} value={spent} max={value.budget}></progress>
 
         </div>
-        <div className='z-60 relative mr-[10px] w-[20px] cursor-pointer text-right' onClick={()=>{handleEdit(value.category)}}>
+        <div className='relative mr-[10px] w-[20px] cursor-pointer text-right' onClick={()=>{handleEdit(value.category)}}>
             <i className="fa-solid text-2xl fa-ellipsis"></i>
-            {showEdit && <div className='z-60 border-1 sticky ml-[-90px] w-fit text-nowrap float-right  rounded-lg'>
+            {showEdit && <div className=' border-1 sticky ml-[-90px] w-fit text-nowrap float-right  rounded-lg'>
                 <h1 onClick={()=>{handleSetBudget(value.category,value);setShowEdit(null)}} className='cursor-pointer hover:bg-[#aab1ba] px-1 text-left rounded-t-md'>Edit limit</h1>
                 <h1 onClick={()=>{setShowDeletePopup(true)}} className='cursor-pointer hover:bg-[#aab1ba;] px-1  rounded-b-md'>Delete budget</h1> 
             </div>} 
@@ -69,6 +69,7 @@ export default function BudgetCard(props) {
         <button className='border-2 rounded-md px-2 py-1 cursor-pointer' onClick={()=>{deleteBudget(value);setShowDeletePopup(false)}}>YES</button>
     </div>
     </div>
+    
     
     </>
 

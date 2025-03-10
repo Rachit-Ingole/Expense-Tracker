@@ -2,7 +2,9 @@ import React, { use, useEffect, useState } from 'react'
 import { m_names,api_url } from '../../utils/variables';
 import { groupByYearMonth,getUniqueCategories } from '../../utils/functions';
 import BudgetCard from './BudgetCard';
-
+import { formatDate,convertTo12HourFormat,formatToIndianNotation } from '../../utils/functions';
+import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const categories = [
     "Food", "Beauty", "Bills", "Car", "Clothing", "Education", "Electronics", 
@@ -130,7 +132,7 @@ export default function Budget(props) {
         async function create_budget() {
             try{
                 const API_URL = `${api_url}/createbudget`
-                const {data:actualData}  = await axios.post(API_URL,{"category":popupData.category,"budget":popupData.limit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString(),"year":year.toString()})
+                await axios.post(API_URL,{"category":popupData.category,"budget":popupData.limit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString(),"year":year.toString()})
                 getAllBudgets()
 
             }catch(err){
@@ -168,6 +170,11 @@ export default function Budget(props) {
         setShowEdit(category)
     }
 
+    const [showRecords,setShowRecords] = useState(false)
+    function handleShowRecords(value,spent){
+        setShowRecords({...value,spent:spent})
+    }
+
     async function deleteBudget(value){
         try{
             const API_URL = `${api_url}/deletebudget`
@@ -182,7 +189,7 @@ export default function Budget(props) {
 
     return (
         <>
-        <div className='md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] h-[80vh] bg-slate-200 rounded-xl m-auto' >
+        <div className='h-[100vh] md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] sm:h-[80vh] bg-slate-200 rounded-xl m-auto' >
             <div className='w-full relative h-full' >
                 <div onTouchStart={()=>{setShowEdit(null)}} onMouseDown={()=>{setShowEdit(null)}} className='z-60 flex justify-center border-b-1 pb-[2px] items-center gap-[10px] text-lg' ><i onClick={(e)=>updateMonth(-1)} className="fa-solid cursor-pointer fa-arrow-left"></i><span className='w-[150px] text-center'>{m_names[month]}, {year}</span> <i onClick={(e)=>updateMonth(1)} className="fa-solid cursor-pointer fa-arrow-right"></i> <input onChange={(e)=>changeMonth(e)} className=' outline-none w-[20px]' type="month" id="start" name="start" min="2018-03"/>
                 </div>
@@ -197,8 +204,8 @@ export default function Budget(props) {
                         <h4 className='text-red-400 font-bold'> ₹{topbar.spent}</h4>
                     </div>
                 </div>
-                <div className='flex flex-col mt-[10px] max-h-[75%] overflow-y-auto' >
-                    {/* existing budgets */}
+                <div className='flex flex-col mt-[10px] max-h-[80%] overflow-y-auto' >
+
                     <h1 className='border-b-1 text-sm font-semibold mr-[50%]'>Budgets this Month</h1>
                     <div className='relative'>
                         {budgets[mandy] && Object.keys(budgets[mandy]).map((value,idx)=>{
@@ -209,7 +216,7 @@ export default function Budget(props) {
                                 spent = 0
                             }
 
-                            return <BudgetCard value={budgets[mandy][value]} handleEdit={handleEdit} showEdit={budgets[mandy][value].category == showEdit} setShowEdit={setShowEdit} deleteBudget={deleteBudget} spent={spent} handleSetBudget={handleSetBudget} key={idx}/>
+                            return <BudgetCard handleShowRecords={handleShowRecords} value={budgets[mandy][value]} handleEdit={handleEdit} showEdit={budgets[mandy][value].category == showEdit} setShowEdit={setShowEdit} deleteBudget={deleteBudget} spent={spent} handleSetBudget={handleSetBudget} key={idx}/>
                         })}
                     </div>
                     
@@ -229,7 +236,7 @@ export default function Budget(props) {
         <div className={budgetPopup ? 'opacity-25 bg-black absolute top-0 left-0 fixed w-[100vw] h-[100vh]':'hidden'} onClick={()=>{setBudgetPopup(false)}}></div>
         <div className={budgetPopup ? "fixed top-1/2 left-1/2 translate-x-[-50%] backdrop-blur shadow-md translate-y-[-50%] rounded-lg bg-slate-400 h-[280px] w-[300px]" : "hidden"}>
             <div onClick={()=>setBudgetPopup(false)} className='fixed text-3xl left-2 cursor-pointer text-white' ><i className="fa-solid fa-xmark"></i></div>
-            <h2 className='w-fit m-auto mt-[10px] text-align-center text-white font-semibold text-lg '>Assign Budget</h2>
+            <h2 className='w-fit m-auto mt-[10px] text-center text-white font-semibold text-lg '>Assign Budget</h2>
             <div className='flex justify-center items-center h-[80px] text-white'>
                 <div className='text-3xl flex justify-center items-center w-[40px] text-center'>
                     {c_icons[popupData.category]} 
@@ -259,6 +266,27 @@ export default function Budget(props) {
                     SET BUDGET
                 </button>
             </div>
+        </div>
+
+        <div className={showRecords ? 'opacity-25 bg-black absolute top-0 left-0 fixed w-[100vw] h-[100vh]':'hidden'} onClick={()=>{setShowRecords(null)}}></div>
+        <div className={showRecords ? "fixed top-1/2 left-1/2 translate-x-[-50%] backdrop-blur shadow-md translate-y-[-50%] rounded-lg bg-slate-400 h-[350px] w-full sm:w-[400px]" : "hidden"}>
+            <h2 className='w-fit m-auto mt-[10px] text-white font-semibold text-lg px-2 text-center'>Records of {c_icons[showRecords?.category]} <span className='underline'>{showRecords?.category}</span> in {m_names[month]} {year}</h2>
+            <div className='pt-5 h-[265px] flex flex-col overflow-y-auto gap-[2px] text-white mb-[10px]'>
+                <div className='mx-auto flex justify-center w-[200px]'>
+                    <CircularProgressbar value={1*showRecords?.spent} maxValue={1*showRecords?.budget} text={`${(showRecords?.spent/showRecords?.budget)*100}%`} styles={buildStyles({textColor:"#FFFFFF"})}/>
+                </div>
+                <div className='mx-auto text-sm my-[15px] font-semibold'>SCROLL TO SEE RECORDS <i className="fa-solid fa-angles-down"></i></div>
+                {expenseByCategory[showRecords?.category] ? Object.keys(expenseByCategory[showRecords.category]).map((idx)=>{
+                    return <div key={idx} className='w-[90%] min-h-[40px] flex items-center mx-auto px-2 bg-slate-500 rounded-lg'>
+                        <h1>{formatDate(expenseByCategory[showRecords.category][idx].date).split(",")[0]} - {convertTo12HourFormat(expenseByCategory[showRecords.category][idx].time)}</h1> 
+                        <h1 className='text-white font-semibold text-lg ml-auto mr-[5px]'>₹{formatToIndianNotation(1*expenseByCategory[showRecords.category][idx].amount)}</h1>
+                    </div>
+                }) : <div className='h-[400px] flex flex-col justify-center items-center font-bold text-white w-full'> <i className="fa-solid fa-triangle-exclamation"></i>No Records</div>}
+            </div>
+            <div onClick={()=>{setShowRecords(null)}} className='cursor-pointer text-white text-lg border-1 w-fit px-2 rounded-md text-center mx-auto'>
+                Close
+            </div>
+            
         </div>
         </>
     )
