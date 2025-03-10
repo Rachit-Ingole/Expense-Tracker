@@ -233,9 +233,6 @@ async def upload_image(image: UploadFile = File(...)):
     os.remove(file_location)
     return {"filename": image.filename, "cost": cost}
 
-
-load_dotenv('creds.env')
-
 # Load environment variables
 SMTP_EMAIL = os.getenv("SMTP_EMAIL")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
