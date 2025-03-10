@@ -1,6 +1,5 @@
 import React, { useState,useEffect } from 'react'
 
-const api_url = "http://127.0.0.1:8000/api/v1/auth/";
 
 export default function Auth(props) {
   const {setData} = props
@@ -29,7 +28,7 @@ export default function Auth(props) {
     setError("")
     async function login() {
       try{
-        const API_URL = `${api_url}login`
+        const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/auth/login`
         const {data:actualData}  = await axios.post(API_URL,{"email_address":email,"password":password})
         console.log(actualData)
         setData(actualData)
@@ -63,7 +62,7 @@ export default function Auth(props) {
     setError("")
     async function register() {
       try{
-        const API_URL = `${api_url}register`
+        const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/auth/register`
         const {data:actualData}  = await axios.post(API_URL,{"username":username,"email_address":email,"password":password})
         console.log(actualData)
         setData(actualData)

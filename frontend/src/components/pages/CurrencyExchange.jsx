@@ -9,7 +9,7 @@ export default function CurrencyExchange(){
 
   useEffect(() => {
     const fetchRates = async () => {
-      const response = await axios.get('https://api.exchangerate-api.com/v4/latest/USD');
+      const response = await axios.get(`${VITE_REACT_APP_CURRENCY_BASEURL}`);
       setRates(response.data.rates);
     };
     fetchRates();

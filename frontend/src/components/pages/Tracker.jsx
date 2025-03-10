@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CategoryDropper from './CategoryDropper';
 import RecordCard from './recordCard';
-import { api_url,m_names} from '../../utils/variables';
+import { m_names} from '../../utils/variables';
 import { formatDate,convertTo12HourFormat } from '../../utils/functions';
 
 export const c_icons = {
@@ -68,7 +68,7 @@ export default function Tracker(props) {
         }
         async function create_record() {
             try{
-              const API_URL = `${api_url}/createrecord`
+              const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/createrecord`
               const {data:actualData}  = await axios.post(API_URL,{"recordType":dataType,"category":category,"note":note,"email_address":data["email_address"],"amount":Number(amount).toString(),"time":time,"date":expenseMonth,"password":data["password"]})
               console.log(actualData)
               getAllRecords()
@@ -95,7 +95,7 @@ export default function Tracker(props) {
         }
         async function upload_image() {
             try{
-              const API_URL = `${api_url}/upload`
+              const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/upload`
               const {data:actualData}  = await axios.post(API_URL,formData,{
                 headers: {
                   'Content-Type': 'multipart/form-data',

@@ -5,7 +5,6 @@ import Tracker from './pages/Tracker';
 import CurrencyExchange from './pages/CurrencyExchange';
 import EmailReminder from './pages/EmailReminder';
 import ExpenseReport from './pages/ExpenseReport';
-import { api_url } from '../utils/variables';
 import { organizeDataByMonthAndDate } from '../utils/functions';
 import Budget from './pages/Budget';
 
@@ -90,7 +89,7 @@ export default function Main(props) {
     
     async function getAllRecords(){
         try{
-            const API_URL = `${api_url}/getrecords`
+            const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/getrecords`
             const {data:actualData}  = await axios.post(API_URL,{"email_address":data["email_address"],"password":data["password"]})
             console.log(actualData)
             sortRecords(actualData)
@@ -101,7 +100,7 @@ export default function Main(props) {
 
     async function deleteRecord(value){
       try{
-          const API_URL = `${api_url}/deleterecord`
+          const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/deleterecord`
           let newVal = {"recordType":value.recordType,"category":value.category,"amount":value.amount,"time":value.time,"date":value.date,"email_address":value.email_address,"note":value.note,"password":data.password}
           await axios.delete(API_URL,{data:newVal})
           getAllRecords()

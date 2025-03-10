@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from 'react'
-import { m_names,api_url } from '../../utils/variables';
+import { m_names } from '../../utils/variables';
 import { groupByYearMonth,getUniqueCategories } from '../../utils/functions';
 import BudgetCard from './BudgetCard';
 import { formatDate,convertTo12HourFormat,formatToIndianNotation } from '../../utils/functions';
@@ -59,7 +59,7 @@ export default function Budget(props) {
 
     async function getAllBudgets(){
             try{
-                const API_URL = `${api_url}/getbudgets`
+                const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/getbudgets`
                 const {data:actualData}  = await axios.post(API_URL,{"email_address":data["email_address"],"password":data["password"]})
                 let newBuds = groupByYearMonth(actualData)
                 setBudgets(newBuds)
@@ -131,7 +131,7 @@ export default function Budget(props) {
         }
         async function create_budget() {
             try{
-                const API_URL = `${api_url}/createbudget`
+                const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/createbudget`
                 await axios.post(API_URL,{"category":popupData.category,"budget":popupData.limit.toString(),"email_address":data["email_address"],"password":data["password"], "month":month.toString(),"year":year.toString()})
                 getAllBudgets()
 
@@ -177,7 +177,7 @@ export default function Budget(props) {
 
     async function deleteBudget(value){
         try{
-            const API_URL = `${api_url}/deletebudget`
+            const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/deletebudget`
             let newVal = {"category":value.category,"budget":value.budget,"month":month.toString(),"year":year.toString(),"email_address":value.email_address,"password":data.password}
             await axios.delete(API_URL,{data:newVal})
             getAllBudgets()

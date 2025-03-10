@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useRef } from 'react'
 import './Navbar.css';
 import {Link} from 'react-router-dom';
 import {useState} from 'react';
-import { api_url } from '../utils/variables';
+
 const SidebarData = [
   {
     title: 'Expense Tracker',
@@ -77,7 +77,7 @@ export default function Navbar(props) {
 
         async function updatePasswordInDatabase() {
             try{
-                const API_URL = `${api_url}/changepassword`
+                const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/changepassword`
                 let newBody = {...data,'newPassword':passwordData.newPassword};
                 const {data:actualData}  = await axios.patch(API_URL,newBody)
                 setData(actualData)
@@ -99,7 +99,7 @@ export default function Navbar(props) {
 
         async function updateUsernameInDatabase() {
             try{
-                const API_URL = `${api_url}/changeusername`
+                const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/changeusername`
                 let newBody = {...data,'newUsername':newUsername};
                 const {data:actualData}  = await axios.patch(API_URL,newBody)
                 setData(actualData)
