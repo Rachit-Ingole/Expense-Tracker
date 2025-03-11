@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import CategoryDropper from './CategoryDropper';
-import RecordCard from './recordCard';
+import RecordCard from './RecordCard';
 import { m_names} from '../../utils/variables';
 import { formatDate,convertTo12HourFormat } from '../../utils/functions';
 
@@ -114,7 +114,7 @@ export default function Tracker(props) {
 
   return (
     <>
-    <div className='h-[100vh] md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] h-[80vh] bg-slate-200 rounded-xl m-auto' >
+    <div className='h-[100vh] md:flex mt-[10px] text-lg p-3 w-full sm:w-[75%] sm:h-[80vh] bg-slate-200 rounded-xl m-auto' >
         <div className={addExpense ? 'hidden md:block w-full relative h-full md:border-r-1 border-black':'w-full relative h-full'} >
             <div className='flex justify-center border-b-1 pb-[2px] items-center gap-[10px] text-lg' ><i onClick={(e)=>updateMonth(-1)} className="cursor-pointer fa-solid fa-arrow-left"></i><span className='w-[150px] text-center'>{m_names[month]}, {year}</span> <i onClick={(e)=>updateMonth(1)} className="cursor-pointer fa-solid fa-arrow-right"></i> <input onChange={(e)=>changeMonth(e)} className=' outline-none w-[20px]' type="month" id="start" name="start" min="2018-03"/></div>
             

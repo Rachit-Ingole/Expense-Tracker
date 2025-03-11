@@ -60,6 +60,26 @@ app.add_middleware(
 async def read_root(): 
     return {"Hello": "World"}
 
+def is_valid_email(email):
+    # Check for one '@' and ensure it's not at the start or end
+    if email.count('@') != 1:
+        return False
+    local_part, domain_part = email.split('@')
+    
+    if not local_part or not domain_part:
+        return False
+    
+    if '.' not in domain_part or domain_part.startswith('.') or domain_part.endswith('.'):
+        return False
+
+    allowed_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_")
+    if not all(char in allowed_chars for char in local_part):
+        return False
+    if not all(char in allowed_chars for char in domain_part):
+        return False
+
+    return True
+
 @app.post("/api/v1/auth/login", response_model=User)
 async def login_user(userInfo: loginInfo = Body(...)):
     user = await app.mongodb["users"].find_one({"email_address": userInfo.email_address})
@@ -72,8 +92,8 @@ async def login_user(userInfo: loginInfo = Body(...)):
 
 @app.post("/api/v1/auth/register", response_model=User)
 async def register_user(user: User):
-    email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-    if(re.match(email_regex, email)):
+
+    if(is_valid_email(user.email_address)):
         exists = await app.mongodb["users"].find_one({"email_address": user.email_address})
         if exists:
             raise HTTPException(status_code=404, detail="email already exists")
@@ -220,7 +240,7 @@ async def change_password(user: UserWithNewUsername):
 
 # ocr
 from pathlib import Path
-UPLOAD_DIRECTORY = "uploads/"
+UPLOAD_DIRECTORY = "/tmp/uploads/"
 @app.post("/api/v1/upload")
 async def upload_image(image: UploadFile = File(...)):
     Path(UPLOAD_DIRECTORY).mkdir(parents=True, exist_ok=True)

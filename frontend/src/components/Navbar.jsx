@@ -50,6 +50,7 @@ export default function Navbar(props) {
     const [showPassword,setShowPassword] = useState(false)
 
     function logout() {
+        localStorage.removeItem('userData')
         setData(null)
     }
 

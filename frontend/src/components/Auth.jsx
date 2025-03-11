@@ -31,6 +31,7 @@ export default function Auth(props) {
         const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/auth/login`
         const {data:actualData}  = await axios.post(API_URL,{"email_address":email,"password":password})
         console.log(actualData)
+        localStorage.setItem('userData', JSON.stringify(actualData));
         setData(actualData)
 
 
@@ -65,7 +66,9 @@ export default function Auth(props) {
         const API_URL = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/auth/register`
         const {data:actualData}  = await axios.post(API_URL,{"username":username,"email_address":email,"password":password})
         console.log(actualData)
+        localStorage.setItem('userData', JSON.stringify(actualData));
         setData(actualData)
+
       }catch(err){
         setError("Email already exists")
         console.error(err)
